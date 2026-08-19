@@ -47,6 +47,7 @@ import { PlaygroundView } from './PlaygroundView';
 import { ProgressDashboard } from './ProgressDashboard';
 import { CertificateView } from './CertificateView';
 import { ProjectHub } from './ProjectHub';
+import { PortfolioView } from './PortfolioView';
 import { Language, TRANSLATIONS } from '../../i18n/translations';
 
 interface AcademyAccount {
@@ -143,7 +144,7 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
   const language = propLanguage || internalLanguage;
   const t = TRANSLATIONS[language];
 
-  const [activeTab, setActiveTab] = useState<'curriculum' | 'lesson' | 'playground' | 'progress' | 'projects' | 'certificate'>('curriculum');
+  const [activeTab, setActiveTab] = useState<'curriculum' | 'lesson' | 'playground' | 'progress' | 'projects' | 'profile' | 'admin' | 'certificate'>('curriculum');
   const [activeTrack, setActiveTrack] = useState<'all' | 'html' | 'css' | 'js'>('all');
   const [selectedLevelId, setSelectedLevelId] = useState<number>(1);
   const [selectedExerciseId, setSelectedExerciseId] = useState<string>('html-1-1');
@@ -153,6 +154,7 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
   const [authForm, setAuthForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const [authError, setAuthError] = useState('');
   const [footerPanel, setFooterPanel] = useState<'privacy' | 'terms' | 'about' | null>(null);
+  const [activeProject, setActiveProject] = useState<{ id: string; title: string; code: string } | undefined>();
   const [isProfileEditing, setIsProfileEditing] = useState(false);
   const [profileForm, setProfileForm] = useState({ name: '', bio: '', location: '', website: '', github: '', linkedin: '', avatarUrl: '' });
   const [localCurrentUser, setLocalCurrentUser] = useState<AcademyAccount | null>(() => getStoredActiveAccount());
@@ -947,7 +949,7 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
         )}
 
         {/* Tab 3: Sandbox Playground */}
-        {activeTab === 'playground' && <PlaygroundView language={language} />}
+        {activeTab === 'playground' && <PlaygroundView language={language} initialProject={activeProject} />}
 
         {/* Progress Dashboard */}
         {activeTab === 'progress' && (
@@ -966,8 +968,20 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
             language={language}
             completedProjectIds={userProgress.completedProjectIds || []}
             onCompleteProject={handleCompleteProject}
-            onOpenPlayground={() => setActiveTab('playground')}
+            onOpenPlayground={(project) => { setActiveProject(project); setActiveTab('playground'); }}
           />
+        )}
+
+        {activeTab === 'profile' && currentUser && (
+          <PortfolioView account={currentUser} progress={userProgress} language={language} onEditProfile={() => setIsAuthOpen(true)} />
+        )}
+
+        {activeTab === 'admin' && currentUser?.role === 'admin' && (
+          <div className="mx-auto w-full max-w-7xl space-y-5 pb-12">
+            <div className="premium-panel rounded-[28px] p-6"><div className="text-[10px] font-black uppercase tracking-[0.2em] text-rose-300">Admin workspace</div><h2 className="mt-2 text-2xl font-black text-white">{language === 'sv' ? 'Plattformsöversikt' : 'Platform overview'}</h2><p className="mt-2 text-sm text-slate-400">{language === 'sv' ? 'Lokal adminvy för demo- och utvecklingsmiljön.' : 'Local admin view for the demo and development environment.'}</p></div>
+            <div className="grid gap-4 sm:grid-cols-3"><div className="glass-card rounded-2xl p-5"><div className="text-xs text-slate-500">Accounts</div><div className="mt-2 text-3xl font-black text-white">{getStoredAccounts().length}</div></div><div className="glass-card rounded-2xl p-5"><div className="text-xs text-slate-500">Active role</div><div className="mt-2 text-3xl font-black text-rose-300">ADMIN</div></div><div className="glass-card rounded-2xl p-5"><div className="text-xs text-slate-500">Storage</div><div className="mt-2 text-3xl font-black text-emerald-300">Local</div></div></div>
+            <div className="premium-panel rounded-[24px] p-5"><h3 className="text-sm font-black text-white">{language === 'sv' ? 'Registrerade profiler' : 'Registered profiles'}</h3><div className="mt-4 space-y-2">{getStoredAccounts().map(account => <div key={account.id} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-xs"><span className="font-bold text-slate-200">{account.name}</span><span className="text-slate-500">{account.email}</span></div>)}</div></div>
+          </div>
         )}
 
         {/* Certificate & Diploma Generator */}
@@ -1299,6 +1313,10 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
                 >
                   {language === 'sv' ? 'Logga ut från appen' : 'Log out of app'}
                 </button>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <button onClick={() => { setActiveTab('profile'); setIsAuthOpen(false); }} className="rounded-xl border border-sky-500/30 bg-sky-500/10 px-3 py-2.5 text-xs font-bold text-sky-200">{language === 'sv' ? 'Öppna portfolio' : 'Open portfolio'}</button>
+                  {currentUser.role === 'admin' && <button onClick={() => { setActiveTab('admin'); setIsAuthOpen(false); }} className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2.5 text-xs font-bold text-rose-200">Adminpanel</button>}
+                </div>
               </div>
             )}
           </div>

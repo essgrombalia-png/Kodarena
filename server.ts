@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
+import { randomBytes, scryptSync, timingSafeEqual } from "crypto";
 
 dotenv.config();
 
@@ -14,6 +15,44 @@ const app = express();
 const PORT = 3000;
 
 app.use(express.json());
+
+type ServerAccount = {
+  id: string;
+  name: string;
+  email: string;
+  passwordHash: string;
+  role: "admin" | "student";
+};
+
+const serverAccounts = new Map<string, ServerAccount>();
+
+function hashPassword(password: string) {
+  const salt = randomBytes(16).toString("hex");
+  const hash = scryptSync(password, salt, 64).toString("hex");
+  return `${salt}:${hash}`;
+}
+
+function verifyPassword(password: string, storedHash: string) {
+  const [salt, expectedHex] = storedHash.split(":");
+  if (!salt || !expectedHex) return false;
+  const expected = Buffer.from(expectedHex, "hex");
+  const actual = scryptSync(password, salt, 64);
+  return expected.length === actual.length && timingSafeEqual(expected, actual);
+}
+
+function seedAdminAccount() {
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (!adminPassword || serverAccounts.has("admin")) return;
+  serverAccounts.set("admin", {
+    id: "server-admin",
+    name: "Koderarena Admin",
+    email: "admin",
+    passwordHash: hashPassword(adminPassword),
+    role: "admin"
+  });
+}
+
+seedAdminAccount();
 
 // Lazy-load Gemini AI client
 let aiClient: GoogleGenAI | null = null;
@@ -29,6 +68,36 @@ function getAIClient(): GoogleGenAI | null {
 // Health check
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: Date.now() });
+});
+
+app.post("/api/auth/register", (req, res) => {
+  const { name, email, password } = req.body as { name?: string; email?: string; password?: string };
+  const normalizedEmail = email?.trim().toLowerCase();
+  if (!name?.trim() || !normalizedEmail || !password || password.length < 8) {
+    return res.status(400).json({ error: "Name, email, and an 8-character password are required." });
+  }
+  if (serverAccounts.has(normalizedEmail)) {
+    return res.status(409).json({ error: "An account with that email already exists." });
+  }
+  const account: ServerAccount = {
+    id: `server-${Date.now()}`,
+    name: name.trim(),
+    email: normalizedEmail,
+    passwordHash: hashPassword(password),
+    role: "student"
+  };
+  serverAccounts.set(normalizedEmail, account);
+  return res.status(201).json({ id: account.id, name: account.name, email: account.email, role: account.role });
+});
+
+app.post("/api/auth/login", (req, res) => {
+  seedAdminAccount();
+  const { email, password } = req.body as { email?: string; password?: string };
+  const account = email ? serverAccounts.get(email.trim().toLowerCase()) : undefined;
+  if (!account || !password || !verifyPassword(password, account.passwordHash)) {
+    return res.status(401).json({ error: "Invalid email or password." });
+  }
+  return res.json({ id: account.id, name: account.name, email: account.email, role: account.role });
 });
 
 // AI Coach endpoint

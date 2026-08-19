@@ -37,6 +37,8 @@ APP_URL=http://localhost:3000
 
 The environment file is ignored by Git. Never commit API keys or other secrets.
 
+For server-side authentication, also set `ADMIN_PASSWORD` in the server environment. The current GitHub Pages demo still uses browser-local accounts; deploy the Express server separately to use the secure auth endpoints.
+
 ## Production build
 
 ```bash

@@ -37,6 +37,7 @@ import {
 
 interface PlaygroundViewProps {
   language?: Language;
+  initialProject?: { id: string; title: string; code: string };
 }
 
 type ActiveFileType = 'html' | 'css' | 'js';
@@ -294,7 +295,7 @@ const STARTER_TEMPLATES = [
 
 const PLAYGROUND_DRAFT_KEY = 'nexus_web_playground_draft_v1';
 
-export const PlaygroundView: React.FC<PlaygroundViewProps> = ({ language = 'sv' }) => {
+export const PlaygroundView: React.FC<PlaygroundViewProps> = ({ language = 'sv', initialProject }) => {
   const t = TRANSLATIONS[language];
   
   // State for 3-file mode vs single-file mode
@@ -323,6 +324,15 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({ language = 'sv' 
       localStorage.setItem(PLAYGROUND_DRAFT_KEY, JSON.stringify(files));
     } catch {}
   }, [files]);
+
+  useEffect(() => {
+    if (!initialProject) return;
+    setActiveTemplate(initialProject.id);
+    setCurrentTitle(initialProject.title);
+    setSingleCode(initialProject.code);
+    setFiles(splitHtmlInto3Files(initialProject.code));
+    setResult(executeAndValidateHtml(initialProject.code));
+  }, [initialProject]);
 
   // Combined code for live preview
   const effectiveHtml = editorMode === 'three-files' 

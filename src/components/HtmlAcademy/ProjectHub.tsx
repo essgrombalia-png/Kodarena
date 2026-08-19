@@ -21,8 +21,10 @@ interface ProjectHubProps {
   language: Language;
   completedProjectIds: string[];
   onCompleteProject: (projectId: string) => void;
-  onOpenPlayground: () => void;
+  onOpenPlayground: (project?: { id: string; title: string; code: string }) => void;
 }
+
+const PROJECT_STEPS_KEY = 'nexus_project_steps_v1';
 
 const PROJECTS = [
   {
@@ -39,6 +41,23 @@ const PROJECTS = [
     outcomeSv: 'En portfolio-startsida som fungerar på mobil, tablet och desktop.',
     outcomeEn: 'A portfolio landing page that works across mobile, tablet, and desktop.',
     steps: ['Wireframe the page', 'Build semantic sections', 'Polish responsive states', 'Publish the result']
+    ,starterCode: `<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio Studio</title>
+</head>
+<body>
+  <header class="hero">
+    <p class="eyebrow">Frontend Developer</p>
+    <h1>Bygg något som känns som du.</h1>
+    <p>Presentera dina färdigheter, projekt och nästa steg.</p>
+    <a href="#projects">Se projekt</a>
+  </header>
+  <main id="projects"><h2>Mina projekt</h2><section class="project-grid"></section></main>
+</body>
+</html>`
   },
   {
     id: 'dashboard-lab',
@@ -54,6 +73,9 @@ const PROJECTS = [
     outcomeSv: 'Ett dashboard där användaren kan filtrera, förstå och agera på data.',
     outcomeEn: 'A dashboard where users can filter, understand, and act on data.',
     steps: ['Model the data', 'Design the dashboard shell', 'Add filters and states', 'Test the user flow']
+    ,starterCode: `<!DOCTYPE html>
+  <html lang="sv"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Dashboard Lab</title></head>
+  <body><main><p class="eyebrow">Operations</p><h1>Team dashboard</h1><div class="metrics"><article><strong>84%</strong><span>Progress</span></article><article><strong>12</strong><span>Tasks</span></article></div><button id="refresh">Uppdatera data</button><p id="status">Senast uppdaterad just nu</p></main></body></html>`
   },
   {
     id: 'launch-page',
@@ -69,6 +91,9 @@ const PROJECTS = [
     outcomeSv: 'En komplett lanseringssida med validerat formulär och tydlig konverteringsväg.',
     outcomeEn: 'A complete launch page with validated forms and a clear conversion path.',
     steps: ['Shape the product story', 'Build the responsive layout', 'Validate the form', 'Ship a polished release']
+    ,starterCode: `<!DOCTYPE html>
+  <html lang="sv"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Launch Page</title></head>
+  <body><main><p class="eyebrow">New release</p><h1>Lansera din nästa idé.</h1><p>En tydlig produkt, ett fokuserat budskap och en väg framåt.</p><form id="signup"><input type="email" required placeholder="du@example.com"><button>Få tillgång</button></form></main></body></html>`
   },
   {
     id: 'academy-home',
@@ -84,6 +109,9 @@ const PROJECTS = [
     outcomeSv: 'En premium utbildningsstartsida med navigation, kurskort och tydliga CTA-flöden.',
     outcomeEn: 'A premium academy home with navigation, course cards, and clear CTA flows.',
     steps: ['Map the learning journey', 'Build reusable card patterns', 'Create responsive navigation', 'Document the design system']
+    ,starterCode: `<!DOCTYPE html>
+  <html lang="sv"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Academy Home</title></head>
+  <body><header><strong>KODARENA</strong><nav><a href="#courses">Kurser</a><a href="#projects">Projekt</a></nav></header><main><p class="eyebrow">Learn by building</p><h1>Din nästa färdighet börjar här.</h1><section id="courses"><article><h2>HTML Foundations</h2><p>Strukturera webben.</p></article></section></main></body></html>`
   }
 ];
 
@@ -97,6 +125,14 @@ export const ProjectHub: React.FC<ProjectHubProps> = ({
   const selectedProject = PROJECTS.find(project => project.id === selectedProjectId) || PROJECTS[0];
   const completedCount = PROJECTS.filter(project => completedProjectIds.includes(project.id)).length;
   const selectedCompleted = completedProjectIds.includes(selectedProject.id);
+  const [stepState, setStepState] = useState<Record<string, number[]>>(() => {
+    try {
+      const saved = localStorage.getItem(PROJECT_STEPS_KEY);
+      return saved ? JSON.parse(saved) as Record<string, number[]> : {};
+    } catch {
+      return {};
+    }
+  });
   const selectedIndex = PROJECTS.findIndex(project => project.id === selectedProject.id);
   const accentGlow = selectedProject.color === 'sky'
     ? 'bg-sky-400/15'
@@ -105,6 +141,21 @@ export const ProjectHub: React.FC<ProjectHubProps> = ({
     : selectedProject.color === 'emerald'
     ? 'bg-emerald-400/15'
     : 'bg-orange-400/15';
+  const projectPayload = { id: selectedProject.id, title: language === 'sv' ? selectedProject.titleSv : selectedProject.titleEn, code: selectedProject.starterCode };
+  const selectedSteps = stepState[selectedProject.id] || [];
+  const allStepsComplete = selectedSteps.length === selectedProject.steps.length;
+
+  const toggleStep = (stepIndex: number) => {
+    setStepState(previous => {
+      const current = previous[selectedProject.id] || [];
+      const next = current.includes(stepIndex) ? current.filter(index => index !== stepIndex) : [...current, stepIndex].sort();
+      const updated = { ...previous, [selectedProject.id]: next };
+      try {
+        localStorage.setItem(PROJECT_STEPS_KEY, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  };
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 pb-12 animate-in fade-in duration-300">
@@ -182,15 +233,18 @@ export const ProjectHub: React.FC<ProjectHubProps> = ({
             <p className="font-bold text-slate-200">{language === 'sv' ? 'Lär dig genom projektet' : 'Learn through the project'}</p>
             <p className="text-xs leading-relaxed text-slate-400">{language === 'sv' ? selectedProject.outcomeSv : selectedProject.outcomeEn}</p>
             <div className="space-y-2">
-              {selectedProject.steps.map((step, index) => <div key={step} className="flex items-center gap-2 text-xs text-slate-400"><span className="flex h-5 w-5 items-center justify-center rounded-md border border-white/10 bg-white/5 font-mono text-[10px] text-slate-500">{index + 1}</span>{step}</div>)}
+              {selectedProject.steps.map((step, index) => {
+                const complete = selectedSteps.includes(index);
+                return <button key={step} onClick={() => toggleStep(index)} className="flex w-full items-center gap-2 text-left text-xs text-slate-400 hover:text-white"><span className={`flex h-5 w-5 items-center justify-center rounded-md border font-mono text-[10px] ${complete ? 'border-emerald-400/50 bg-emerald-400/15 text-emerald-300' : 'border-white/10 bg-white/5 text-slate-500'}`}>{complete ? '✓' : index + 1}</span><span className={complete ? 'text-emerald-200 line-through' : ''}>{step}</span></button>;
+              })}
             </div>
             <div className="flex flex-wrap gap-2 pt-2">
               {selectedProject.skills.map(skill => <span key={skill} className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold text-slate-300">{skill}</span>)}
             </div>
           </div>
           <div className="mt-6 flex flex-wrap gap-2">
-            <button onClick={onOpenPlayground} className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-orange-400 to-amber-300 px-4 py-2.5 text-xs font-black text-slate-950 shadow-lg shadow-orange-500/20"><Code2 className="h-3.5 w-3.5" />{language === 'sv' ? 'Starta projektet' : 'Start project'}<ArrowUpRight className="h-3.5 w-3.5" /></button>
-            <button onClick={() => onCompleteProject(selectedProject.id)} className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-xs font-bold text-emerald-200 hover:bg-emerald-500/20"><CheckCircle2 className="h-3.5 w-3.5" />{completedProjectIds.includes(selectedProject.id) ? (language === 'sv' ? 'Projekt klart' : 'Project complete') : (language === 'sv' ? 'Markera klart' : 'Mark complete')}</button>
+            <button onClick={() => onOpenPlayground(projectPayload)} className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-orange-400 to-amber-300 px-4 py-2.5 text-xs font-black text-slate-950 shadow-lg shadow-orange-500/20"><Code2 className="h-3.5 w-3.5" />{language === 'sv' ? 'Starta projektet' : 'Start project'}<ArrowUpRight className="h-3.5 w-3.5" /></button>
+            <button disabled={!allStepsComplete || selectedCompleted} onClick={() => onCompleteProject(selectedProject.id)} className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-xs font-bold text-emerald-200 hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-40"><CheckCircle2 className="h-3.5 w-3.5" />{selectedCompleted ? (language === 'sv' ? 'Projekt klart' : 'Project complete') : allStepsComplete ? (language === 'sv' ? 'Slutför projekt' : 'Complete project') : (language === 'sv' ? `${selectedSteps.length}/${selectedProject.steps.length} steg` : `${selectedSteps.length}/${selectedProject.steps.length} steps`)}</button>
           </div>
           <div className="mt-5 flex items-center gap-2 border-t border-white/10 pt-4 text-[10px] text-slate-500"><Github className="h-3.5 w-3.5" /> {language === 'sv' ? 'Redo för portfolio och GitHub' : 'Ready for portfolio and GitHub'} <ExternalLink className="ml-auto h-3 w-3" /></div>
         </aside>
