@@ -242,8 +242,8 @@ export const LessonView: React.FC<LessonViewProps> = ({
         </div>
       )}
 
-      {/* Mobile & Tablet Segmented View Switcher (Only on screens < lg) */}
-      <div className="flex lg:hidden items-center bg-[#070b16] p-1.5 rounded-2xl border border-white/10 shadow-lg">
+      {/* Phone-only view switcher. Tablets keep the task, editor, and preview visible together. */}
+      <div className="flex md:hidden items-center bg-[#070b16] p-1.5 rounded-2xl border border-white/10 shadow-lg">
         <button
           onClick={() => setMobileView('theory')}
           className={`flex-1 py-2.5 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 min-h-[44px] ${
@@ -284,7 +284,7 @@ export const LessonView: React.FC<LessonViewProps> = ({
 
       {/* Mobile Floating Quick Switch Action when on Editor view */}
       {mobileView === 'editor' && (
-        <div className="lg:hidden flex items-center justify-between p-2.5 rounded-2xl bg-[#070b16] border border-white/10 text-xs gap-2">
+        <div className="md:hidden flex items-center justify-between p-2.5 rounded-2xl bg-[#070b16] border border-white/10 text-xs gap-2">
           <span className="text-slate-400 truncate text-[11px] font-mono">
             {exercise.title}
           </span>
@@ -300,7 +300,7 @@ export const LessonView: React.FC<LessonViewProps> = ({
 
       {/* Mobile Floating Quick Switch Action when on Output view */}
       {mobileView === 'output' && (
-        <div className="lg:hidden flex items-center justify-between p-2.5 rounded-2xl bg-[#070b16] border border-white/10 text-xs gap-2">
+        <div className="md:hidden flex items-center justify-between p-2.5 rounded-2xl bg-[#070b16] border border-white/10 text-xs gap-2">
           <span className="text-slate-400 truncate text-[11px] font-mono">
             {result?.allTestsPassed ? (language === 'sv' ? 'Alla tester gröna!' : 'All tests passed!') : (language === 'sv' ? 'Förhandsgranskning live' : 'Live preview')}
           </span>
@@ -315,10 +315,10 @@ export const LessonView: React.FC<LessonViewProps> = ({
       )}
 
       {/* Main 3-Column Studio Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 items-stretch">
         {/* Left Column: Theory, Instructions & Hints */}
-        <div className={`lg:col-span-4 bg-[#070b16] rounded-2xl border border-white/10 flex flex-col overflow-hidden shadow-2xl ${
-          mobileView === 'theory' ? 'block' : 'hidden lg:flex'
+        <div className={`md:col-span-2 lg:col-span-4 bg-[#070b16] rounded-2xl border border-white/10 flex flex-col overflow-hidden shadow-2xl min-h-[300px] md:min-h-[340px] lg:min-h-[620px] ${
+          mobileView === 'theory' ? 'block' : 'hidden md:flex'
         }`}>
           {/* Tab Selection */}
           <div className="p-2 bg-[#050811] border-b border-white/10 flex items-center justify-between gap-1 flex-wrap">
@@ -375,7 +375,7 @@ export const LessonView: React.FC<LessonViewProps> = ({
           </div>
 
           {/* Theory Panel Content */}
-          <div className="p-5 flex-1 overflow-y-auto space-y-4 max-h-[600px] text-xs">
+          <div className="p-5 flex-1 overflow-y-auto space-y-4 max-h-[600px] md:max-h-[360px] lg:max-h-[600px] text-xs">
             {activeTheoryTab === 'task' && (
               <div className="space-y-4 animate-fade-in">
                 <div className="p-3.5 rounded-xl bg-orange-500/10 border border-orange-500/30 space-y-1.5">
@@ -505,7 +505,7 @@ export const LessonView: React.FC<LessonViewProps> = ({
         </div>
 
         {/* Middle Column: Code Editor */}
-        <div className={`lg:col-span-4 ${mobileView === 'editor' ? 'block' : 'hidden lg:flex flex-col'}`}>
+        <div className={`md:col-span-1 lg:col-span-4 min-w-0 md:min-h-[520px] ${mobileView === 'editor' ? 'block' : 'hidden md:flex flex-col'}`}>
           <HtmlCodeEditor
             code={code}
             onChange={setCode}
@@ -521,7 +521,7 @@ export const LessonView: React.FC<LessonViewProps> = ({
         </div>
 
         {/* Right Column: Live Web Preview & Validation Tests */}
-        <div className={`lg:col-span-4 ${mobileView === 'output' ? 'block' : 'hidden lg:flex flex-col'}`}>
+        <div className={`md:col-span-1 lg:col-span-4 min-w-0 md:min-h-[520px] ${mobileView === 'output' ? 'block' : 'hidden md:flex flex-col'}`}>
           <HtmlPreviewOutput
             result={result}
             rawHtml={code}
