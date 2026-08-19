@@ -89,6 +89,7 @@ export interface UserHtmlProgress {
     updatedAt: string;
   }>;
   savedTemplates?: CustomCodeTemplate[];
+  completedProjectIds?: string[];
   activeExerciseId: string;
 }
 

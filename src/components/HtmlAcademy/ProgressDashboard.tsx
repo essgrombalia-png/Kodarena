@@ -15,7 +15,8 @@ import {
   Radar as RadarIcon,
   PieChart as PieChartIcon,
   Flame,
-  ArrowUpRight
+  ArrowUpRight,
+  FolderKanban
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -308,6 +309,19 @@ export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
             <span className="text-[10px] text-amber-300 font-semibold font-mono">
               {jsDoneCount} / {totalJsExercises} {language === 'sv' ? 'klara' : 'done'}
             </span>
+          </div>
+        </div>
+
+        {/* Portfolio Projects */}
+        <div className="bg-[#070b16] p-5 rounded-3xl border border-white/10 flex items-center gap-4 shadow-xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none group-hover:bg-emerald-500/10 transition" />
+          <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 border border-emerald-500/30 shrink-0">
+            <FolderKanban className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-xs text-slate-400 font-medium">{language === 'sv' ? 'Portfolio-projekt' : 'Portfolio projects'}</p>
+            <h3 className="text-2xl font-bold text-slate-100 font-mono tracking-tight">{userProgress.completedProjectIds?.length || 0} / 3</h3>
+            <span className="text-[10px] text-emerald-300 font-semibold font-mono">{language === 'sv' ? 'projekt klara' : 'projects complete'}</span>
           </div>
         </div>
       </div>

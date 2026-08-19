@@ -48,6 +48,7 @@ import { CheatsheetView } from './CheatsheetView';
 import { ProgressDashboard } from './ProgressDashboard';
 import { CertificateView } from './CertificateView';
 import { AICoachModal } from './AICoachModal';
+import { ProjectHub } from './ProjectHub';
 import { Language, TRANSLATIONS } from '../../i18n/translations';
 
 interface AcademyAccount {
@@ -115,6 +116,7 @@ const INITIAL_PROGRESS: UserHtmlProgress = {
   solvedQuizIds: [],
   unlockedBadgeIds: [],
   savedPlaygroundCodes: [],
+  completedProjectIds: [],
   activeExerciseId: 'html-1-1'
 };
 
@@ -136,7 +138,7 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
   const language = propLanguage || internalLanguage;
   const t = TRANSLATIONS[language];
 
-  const [activeTab, setActiveTab] = useState<'curriculum' | 'lesson' | 'playground' | 'quiz' | 'cheatsheet' | 'progress' | 'certificate'>('curriculum');
+  const [activeTab, setActiveTab] = useState<'curriculum' | 'lesson' | 'playground' | 'quiz' | 'cheatsheet' | 'progress' | 'projects' | 'certificate'>('curriculum');
   const [activeTrack, setActiveTrack] = useState<'all' | 'html' | 'css' | 'js'>('all');
   const [selectedLevelId, setSelectedLevelId] = useState<number>(1);
   const [selectedExerciseId, setSelectedExerciseId] = useState<string>('html-1-1');
@@ -297,6 +299,18 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
         ...prev,
         totalXp: prev.totalXp + earnedXp,
         solvedQuizIds: [...prev.solvedQuizIds, quizId]
+      };
+    });
+  };
+
+  const handleCompleteProject = (projectId: string) => {
+    setUserProgress(prev => {
+      const completedProjectIds = prev.completedProjectIds || [];
+      if (completedProjectIds.includes(projectId)) return prev;
+      return {
+        ...prev,
+        totalXp: prev.totalXp + 100,
+        completedProjectIds: [...completedProjectIds, projectId]
       };
     });
   };
@@ -525,6 +539,18 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
             >
               <Award className="w-3.5 h-3.5" />
               <span>{t.progressTab}</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('projects')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
+                activeTab === 'projects'
+                  ? 'bg-emerald-400 text-slate-950 shadow-md shadow-emerald-500/20 font-bold'
+                  : 'text-emerald-300/80 hover:text-emerald-200 hover:bg-emerald-500/10'
+              }`}
+            >
+              <Rocket className="w-3.5 h-3.5" />
+              <span>{language === 'sv' ? 'Projekt' : 'Projects'}</span>
             </button>
 
             <button
@@ -928,6 +954,15 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
           />
         )}
 
+        {activeTab === 'projects' && (
+          <ProjectHub
+            language={language}
+            completedProjectIds={userProgress.completedProjectIds || []}
+            onCompleteProject={handleCompleteProject}
+            onOpenPlayground={() => setActiveTab('playground')}
+          />
+        )}
+
         {/* Tab 7: Certificate & Diploma Generator */}
         {activeTab === 'certificate' && (
           <CertificateView
@@ -1069,6 +1104,16 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
         >
           <Award className="w-5 h-5" />
           <span className="text-[10px] tracking-tight">{language === 'sv' ? 'Analys' : 'Progress'}</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('projects')}
+          className={`flex flex-col items-center justify-center gap-1 py-1 px-2.5 rounded-xl transition min-w-[56px] min-h-[44px] ${
+            activeTab === 'projects' ? 'text-emerald-300 font-bold' : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <Rocket className="w-5 h-5" />
+          <span className="text-[10px] tracking-tight">{language === 'sv' ? 'Projekt' : 'Projects'}</span>
         </button>
 
         <button
