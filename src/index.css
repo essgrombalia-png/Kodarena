@@ -1,0 +1,331 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(251, 146, 60, 0.18), transparent 20%),
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.12), transparent 25%),
+    radial-gradient(circle at bottom center, rgba(168, 85, 247, 0.12), transparent 22%),
+    #050810;
+  color: #f8fafc;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+::selection {
+  background: rgba(96, 165, 250, 0.4);
+  color: white;
+}
+
+.premium-panel {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(9, 15, 27, 0.78));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.55), inset 0 1px 0 rgba(255,255,255,0.04);
+  backdrop-filter: blur(22px);
+}
+
+.glass-card {
+  background: rgba(15, 23, 42, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+  backdrop-filter: blur(12px);
+}
+
+button, [role="button"] {
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+button:hover, [role="button"]:hover {
+  transform: translateY(-1px);
+}
+
+button:active, [role="button"]:active {
+  transform: translateY(0);
+}
+
+/* ==========================================================================
+   Syntax Highlighting Color Themes for Code Editor
+   ========================================================================== */
+
+/* 1. Default (Kodarena Obsidian) */
+.editor-theme-kodarena .token.comment,
+.editor-theme-kodarena .token.prolog,
+.editor-theme-kodarena .token.doctype,
+.editor-theme-kodarena .token.cdata { color: #64748b; font-style: italic; }
+.editor-theme-kodarena .token.punctuation { color: #94a3b8; }
+.editor-theme-kodarena .token.property,
+.editor-theme-kodarena .token.tag,
+.editor-theme-kodarena .token.constant,
+.editor-theme-kodarena .token.symbol,
+.editor-theme-kodarena .token.deleted { color: #fb923c; }
+.editor-theme-kodarena .token.boolean,
+.editor-theme-kodarena .token.number { color: #fbbf24; font-weight: 600; }
+.editor-theme-kodarena .token.selector,
+.editor-theme-kodarena .token.attr-name,
+.editor-theme-kodarena .token.string,
+.editor-theme-kodarena .token.char,
+.editor-theme-kodarena .token.inserted { color: #34d399; }
+.editor-theme-kodarena .token.operator,
+.editor-theme-kodarena .token.entity,
+.editor-theme-kodarena .token.url { color: #f472b6; }
+.editor-theme-kodarena .token.keyword { color: #22d3ee; font-weight: 700; }
+.editor-theme-kodarena .token.builtin { color: #38bdf8; font-weight: 600; }
+.editor-theme-kodarena .token.function,
+.editor-theme-kodarena .token.class-name { color: #a78bfa; font-weight: 700; }
+.editor-theme-kodarena .token.regex,
+.editor-theme-kodarena .token.important,
+.editor-theme-kodarena .token.variable { color: #fde047; }
+
+/* 2. Dracula */
+.editor-theme-dracula .token.comment,
+.editor-theme-dracula .token.prolog,
+.editor-theme-dracula .token.doctype,
+.editor-theme-dracula .token.cdata { color: #6272a4; font-style: italic; }
+.editor-theme-dracula .token.punctuation { color: #f8f8f2; }
+.editor-theme-dracula .token.property,
+.editor-theme-dracula .token.tag,
+.editor-theme-dracula .token.constant,
+.editor-theme-dracula .token.symbol { color: #ff79c6; font-weight: 600; }
+.editor-theme-dracula .token.boolean,
+.editor-theme-dracula .token.number { color: #bd93f9; font-weight: 600; }
+.editor-theme-dracula .token.selector,
+.editor-theme-dracula .token.attr-name { color: #50fa7b; font-style: italic; }
+.editor-theme-dracula .token.string,
+.editor-theme-dracula .token.char,
+.editor-theme-dracula .token.inserted { color: #f1fa8c; }
+.editor-theme-dracula .token.operator,
+.editor-theme-dracula .token.entity,
+.editor-theme-dracula .token.url { color: #ff79c6; }
+.editor-theme-dracula .token.keyword { color: #ff79c6; font-weight: 700; }
+.editor-theme-dracula .token.builtin { color: #8be9fd; font-style: italic; }
+.editor-theme-dracula .token.function,
+.editor-theme-dracula .token.class-name { color: #50fa7b; font-weight: 700; }
+.editor-theme-dracula .token.variable { color: #f8f8f2; }
+
+/* 3. Monokai Pro */
+.editor-theme-monokai .token.comment,
+.editor-theme-monokai .token.prolog,
+.editor-theme-monokai .token.doctype,
+.editor-theme-monokai .token.cdata { color: #75715e; font-style: italic; }
+.editor-theme-monokai .token.punctuation { color: #f8f8f2; }
+.editor-theme-monokai .token.property,
+.editor-theme-monokai .token.tag,
+.editor-theme-monokai .token.constant { color: #f92672; font-weight: 700; }
+.editor-theme-monokai .token.boolean,
+.editor-theme-monokai .token.number { color: #ae81ff; font-weight: 600; }
+.editor-theme-monokai .token.selector,
+.editor-theme-monokai .token.attr-name { color: #a6e22e; }
+.editor-theme-monokai .token.string,
+.editor-theme-monokai .token.char { color: #e6db74; }
+.editor-theme-monokai .token.operator { color: #f92672; }
+.editor-theme-monokai .token.keyword { color: #f92672; font-weight: 700; }
+.editor-theme-monokai .token.builtin { color: #66d9ef; font-style: italic; }
+.editor-theme-monokai .token.function,
+.editor-theme-monokai .token.class-name { color: #a6e22e; font-weight: 700; }
+.editor-theme-monokai .token.variable { color: #fd971f; }
+
+/* 4. Solarized Dark */
+.editor-theme-solarized-dark .token.comment,
+.editor-theme-solarized-dark .token.prolog,
+.editor-theme-solarized-dark .token.doctype { color: #586e75; font-style: italic; }
+.editor-theme-solarized-dark .token.punctuation { color: #93a1a1; }
+.editor-theme-solarized-dark .token.property,
+.editor-theme-solarized-dark .token.tag { color: #268bd2; font-weight: 600; }
+.editor-theme-solarized-dark .token.boolean,
+.editor-theme-solarized-dark .token.number { color: #d33682; font-weight: 600; }
+.editor-theme-solarized-dark .token.selector,
+.editor-theme-solarized-dark .token.attr-name { color: #b58900; }
+.editor-theme-solarized-dark .token.string,
+.editor-theme-solarized-dark .token.char { color: #2aa198; }
+.editor-theme-solarized-dark .token.operator { color: #859900; }
+.editor-theme-solarized-dark .token.keyword { color: #859900; font-weight: 700; }
+.editor-theme-solarized-dark .token.builtin { color: #cb4b16; }
+.editor-theme-solarized-dark .token.function,
+.editor-theme-solarized-dark .token.class-name { color: #268bd2; font-weight: 700; }
+.editor-theme-solarized-dark .token.variable { color: #b58900; }
+
+/* 5. Solarized Light */
+.editor-theme-solarized-light .token.comment,
+.editor-theme-solarized-light .token.prolog { color: #93a1a1; font-style: italic; }
+.editor-theme-solarized-light .token.punctuation { color: #586e75; }
+.editor-theme-solarized-light .token.property,
+.editor-theme-solarized-light .token.tag { color: #268bd2; font-weight: 600; }
+.editor-theme-solarized-light .token.boolean,
+.editor-theme-solarized-light .token.number { color: #d33682; font-weight: 600; }
+.editor-theme-solarized-light .token.selector,
+.editor-theme-solarized-light .token.attr-name { color: #657b83; }
+.editor-theme-solarized-light .token.string,
+.editor-theme-solarized-light .token.char { color: #2aa198; }
+.editor-theme-solarized-light .token.operator { color: #859900; }
+.editor-theme-solarized-light .token.keyword { color: #859900; font-weight: 700; }
+.editor-theme-solarized-light .token.builtin { color: #b58900; }
+.editor-theme-solarized-light .token.function,
+.editor-theme-solarized-light .token.class-name { color: #b58900; font-weight: 700; }
+.editor-theme-solarized-light .token.variable { color: #6c71c4; }
+
+/* 6. Nord Frost */
+.editor-theme-nord .token.comment,
+.editor-theme-nord .token.prolog { color: #616e88; font-style: italic; }
+.editor-theme-nord .token.punctuation { color: #eceff4; }
+.editor-theme-nord .token.property,
+.editor-theme-nord .token.tag { color: #81a1c1; font-weight: 600; }
+.editor-theme-nord .token.boolean,
+.editor-theme-nord .token.number { color: #b48ead; font-weight: 600; }
+.editor-theme-nord .token.selector,
+.editor-theme-nord .token.attr-name { color: #8fbcbb; }
+.editor-theme-nord .token.string,
+.editor-theme-nord .token.char { color: #a3be8c; }
+.editor-theme-nord .token.operator { color: #81a1c1; }
+.editor-theme-nord .token.keyword { color: #81a1c1; font-weight: 700; }
+.editor-theme-nord .token.builtin { color: #88c0d0; }
+.editor-theme-nord .token.function,
+.editor-theme-nord .token.class-name { color: #88c0d0; font-weight: 700; }
+.editor-theme-nord .token.variable { color: #d8dee9; }
+
+/* 7. One Dark Pro */
+.editor-theme-onedark .token.comment,
+.editor-theme-onedark .token.prolog { color: #5c6370; font-style: italic; }
+.editor-theme-onedark .token.punctuation { color: #abb2bf; }
+.editor-theme-onedark .token.property,
+.editor-theme-onedark .token.tag { color: #e06c75; font-weight: 600; }
+.editor-theme-onedark .token.boolean,
+.editor-theme-onedark .token.number { color: #d19a66; font-weight: 600; }
+.editor-theme-onedark .token.selector,
+.editor-theme-onedark .token.attr-name { color: #d19a66; }
+.editor-theme-onedark .token.string,
+.editor-theme-onedark .token.char { color: #98c379; }
+.editor-theme-onedark .token.operator { color: #56b6c2; }
+.editor-theme-onedark .token.keyword { color: #c678dd; font-weight: 700; }
+.editor-theme-onedark .token.builtin { color: #e5c07b; }
+.editor-theme-onedark .token.function,
+.editor-theme-onedark .token.class-name { color: #61afef; font-weight: 700; }
+.editor-theme-onedark .token.variable { color: #abb2bf; }
+
+/* 8. Cyberpunk Neon */
+.editor-theme-cyberpunk .token.comment,
+.editor-theme-cyberpunk .token.prolog { color: #64748b; font-style: italic; }
+.editor-theme-cyberpunk .token.punctuation { color: #e2e8f0; }
+.editor-theme-cyberpunk .token.property,
+.editor-theme-cyberpunk .token.tag { color: #ec4899; font-weight: 700; text-shadow: 0 0 6px rgba(236,72,153,0.3); }
+.editor-theme-cyberpunk .token.boolean,
+.editor-theme-cyberpunk .token.number { color: #facc15; font-weight: 700; text-shadow: 0 0 6px rgba(250,204,21,0.3); }
+.editor-theme-cyberpunk .token.selector,
+.editor-theme-cyberpunk .token.attr-name { color: #22d3ee; }
+.editor-theme-cyberpunk .token.string,
+.editor-theme-cyberpunk .token.char { color: #4ade80; text-shadow: 0 0 6px rgba(74,222,128,0.3); }
+.editor-theme-cyberpunk .token.operator { color: #06b6d4; }
+.editor-theme-cyberpunk .token.keyword { color: #f43f5e; font-weight: 700; }
+.editor-theme-cyberpunk .token.builtin { color: #38bdf8; }
+.editor-theme-cyberpunk .token.function,
+.editor-theme-cyberpunk .token.class-name { color: #a855f7; font-weight: 700; text-shadow: 0 0 6px rgba(168,85,247,0.3); }
+.editor-theme-cyberpunk .token.variable { color: #f0fdf4; }
+
+/* Global fallback for unselected token styling */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata { color: #64748b; font-style: italic; }
+.token.punctuation { color: #94a3b8; }
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted { color: #fb923c; }
+.token.boolean,
+.token.number { color: #fbbf24; font-weight: 600; }
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.inserted { color: #34d399; }
+.token.triple-quoted-string { color: #6ee7b7; font-style: italic; }
+.token.operator,
+.token.entity,
+.token.url { color: #f472b6; }
+.token.keyword { color: #22d3ee; font-weight: 700; }
+.token.builtin { color: #38bdf8; font-weight: 600; }
+.token.function,
+.token.class-name { color: #a78bfa; font-weight: 700; }
+.token.decorator { color: #e879f9; }
+.token.regex,
+.token.important,
+.token.variable { color: #fde047; }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(5, 8, 16, 0.6);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(34, 211, 238, 0.4);
+}
+
+/* Certificate Typography Utilities */
+.font-cinzel {
+  font-family: 'Cinzel', serif, Georgia;
+}
+
+.font-cormorant {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+.font-signature {
+  font-family: 'Alex Brush', 'Great Vibes', cursive;
+}
+
+.font-montserrat {
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Print Optimization for Certificate */
+@media print {
+  body {
+    background: transparent !important;
+    color: #000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  /* Hide all UI elements except certificate container */
+  header, nav, aside, footer, button, .no-print {
+    display: none !important;
+  }
+
+  .print-certificate-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: #fff !important;
+    z-index: 99999 !important;
+  }
+
+  @page {
+    size: A4 landscape;
+    margin: 0;
+  }
+}

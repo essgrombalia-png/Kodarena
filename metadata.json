@@ -1,0 +1,7 @@
+{
+  "name": "NEXUS & HTML Pro Academy",
+  "description": "Interaktiv kodarena och webbakademi för HTML5, CSS3 och JavaScript (ES6+) med Recharts visuell framstegsanalys, nivåbaserade lektioner, live-sandbox, kodtester och AI-coach.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
