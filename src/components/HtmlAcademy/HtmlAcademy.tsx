@@ -37,7 +37,11 @@ import {
   LifeBuoy,
   FileText,
   Info,
-  ExternalLink
+  ExternalLink,
+  Camera,
+  MapPin,
+  Link as LinkIcon,
+  Linkedin
 } from 'lucide-react';
 import { UserHtmlProgress, HtmlLessonLevel, HtmlExercise, WebTrack } from '../../types/html';
 import { getLocalizedCurriculum } from '../../utils/localizedCurriculum';
@@ -57,6 +61,13 @@ interface AcademyAccount {
   email: string;
   password: string;
   createdAt: string;
+  role?: 'admin' | 'student';
+  bio?: string;
+  location?: string;
+  website?: string;
+  github?: string;
+  linkedin?: string;
+  avatarUrl?: string;
 }
 
 interface HtmlAcademyProps {
@@ -150,9 +161,25 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
   const [authForm, setAuthForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const [authError, setAuthError] = useState('');
   const [footerPanel, setFooterPanel] = useState<'privacy' | 'terms' | 'about' | null>(null);
+  const [isProfileEditing, setIsProfileEditing] = useState(false);
+  const [profileForm, setProfileForm] = useState({ name: '', bio: '', location: '', website: '', github: '', linkedin: '', avatarUrl: '' });
   const [localCurrentUser, setLocalCurrentUser] = useState<AcademyAccount | null>(() => getStoredActiveAccount());
 
   const currentUser = propCurrentUser ?? localCurrentUser;
+
+  useEffect(() => {
+    if (currentUser) {
+      setProfileForm({
+        name: currentUser.name || '',
+        bio: currentUser.bio || '',
+        location: currentUser.location || '',
+        website: currentUser.website || '',
+        github: currentUser.github || '',
+        linkedin: currentUser.linkedin || '',
+        avatarUrl: currentUser.avatarUrl || ''
+      });
+    }
+  }, [currentUser]);
 
   useEffect(() => {
     if (!currentUser) {
@@ -217,7 +244,8 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
       name,
       email,
       password,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      role: 'student'
     };
 
     const updatedAccounts = [account, ...accounts];
@@ -234,6 +262,23 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
 
     if (!email || !password) {
       setAuthError(language === 'sv' ? 'Skriv in e-post och lösenord.' : 'Enter your email and password.');
+      return;
+    }
+
+    if (email.toLowerCase() === 'admin' && password === 'admin') {
+      const adminAccount: AcademyAccount = {
+        id: 'kodarena-admin',
+        name: 'Koderarena Admin',
+        email: 'admin',
+        password: 'admin',
+        createdAt: new Date().toISOString(),
+        role: 'admin',
+        bio: language === 'sv' ? 'Plattformsadministratör' : 'Platform administrator'
+      };
+      updateCurrentUser(adminAccount);
+      setAuthForm({ name: '', email: '', password: '', confirmPassword: '' });
+      setAuthError('');
+      setIsAuthOpen(false);
       return;
     }
 
@@ -255,6 +300,37 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
   const handleLogout = () => {
     updateCurrentUser(null);
     setIsAuthOpen(false);
+  };
+
+  const handleProfileFieldChange = (field: keyof typeof profileForm, value: string) => {
+    setProfileForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleAvatarChange = (file?: File) => {
+    if (!file || !file.type.startsWith('image/')) return;
+    if (file.size > 2 * 1024 * 1024) {
+      setAuthError(language === 'sv' ? 'Profilbilden måste vara mindre än 2 MB.' : 'Profile image must be smaller than 2 MB.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => handleProfileFieldChange('avatarUrl', String(reader.result));
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveProfile = () => {
+    if (!currentUser || !profileForm.name.trim()) {
+      setAuthError(language === 'sv' ? 'Namn måste fyllas i.' : 'Name is required.');
+      return;
+    }
+    const updatedAccount: AcademyAccount = { ...currentUser, ...profileForm, name: profileForm.name.trim() };
+    const accounts = getStoredAccounts();
+    const updatedAccounts = accounts.some(account => account.id === updatedAccount.id)
+      ? accounts.map(account => account.id === updatedAccount.id ? updatedAccount : account)
+      : updatedAccount.role === 'admin' ? accounts : [updatedAccount, ...accounts];
+    saveStoredAccounts(updatedAccounts);
+    updateCurrentUser(updatedAccount);
+    setAuthError('');
+    setIsProfileEditing(false);
   };
 
   const authGateOpen = !currentUser || isAuthOpen;
@@ -1239,13 +1315,69 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
             {currentUser && (
               <div className="space-y-4">
                 <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-200">
-                  <div className="flex items-center gap-2 mb-2">
-                    <ShieldCheck className="w-4 h-4" />
-                    <span className="font-bold">{language === 'sv' ? 'Du är inloggad' : 'You are logged in'}</span>
+                  <div className="flex items-center gap-3">
+                    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl border border-white/15 bg-white/10">
+                      {currentUser.avatarUrl ? <img src={currentUser.avatarUrl} alt="Profile" className="h-full w-full object-cover" /> : <User className="m-3 h-7 w-7 text-emerald-300" />}
+                      {isProfileEditing && (
+                        <label className="absolute inset-0 flex cursor-pointer items-center justify-center bg-slate-950/70 opacity-0 transition hover:opacity-100">
+                          <Camera className="h-5 w-5 text-white" />
+                          <input type="file" accept="image/*" className="hidden" onChange={(event) => handleAvatarChange(event.target.files?.[0])} />
+                        </label>
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <ShieldCheck className="h-4 w-4" />
+                        <span className="font-bold">{currentUser.role === 'admin' ? 'Admin' : (language === 'sv' ? 'Du är inloggad' : 'You are logged in')}</span>
+                      </div>
+                      <div className="mt-1 text-base font-bold text-white">{currentUser.name}</div>
+                      <div className="mt-0.5 truncate text-xs text-emerald-100/80">{currentUser.email}</div>
+                    </div>
                   </div>
-                  <div className="text-base font-bold text-white">{currentUser.name}</div>
-                  <div className="text-xs text-emerald-100/80 mt-1">{currentUser.email}</div>
                 </div>
+
+                {isProfileEditing && (
+                  <div className="space-y-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      {([
+                        ['name', language === 'sv' ? 'Namn' : 'Name'],
+                        ['location', language === 'sv' ? 'Plats' : 'Location'],
+                        ['website', 'Website'],
+                        ['github', 'GitHub'],
+                        ['linkedin', 'LinkedIn']
+                      ] as const).map(([field, label]) => (
+                        <label key={field} className="block">
+                          <span className="mb-1 block text-[10px] uppercase tracking-[0.16em] text-slate-500">{label}</span>
+                          <input value={profileForm[field]} onChange={(event) => handleProfileFieldChange(field, event.target.value)} className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white outline-none focus:border-sky-400" />
+                        </label>
+                      ))}
+                    </div>
+                    <label className="block">
+                      <span className="mb-1 block text-[10px] uppercase tracking-[0.16em] text-slate-500">{language === 'sv' ? 'Kort presentation' : 'Short bio'}</span>
+                      <textarea value={profileForm.bio} onChange={(event) => handleProfileFieldChange('bio', event.target.value)} rows={3} maxLength={240} className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white outline-none focus:border-sky-400" placeholder={language === 'sv' ? 'Berätta kort om dig själv...' : 'Tell people about yourself...'} />
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      <button onClick={handleSaveProfile} className="rounded-xl bg-emerald-400 px-4 py-2 text-xs font-black text-slate-950">{language === 'sv' ? 'Spara profil' : 'Save profile'}</button>
+                      <button onClick={() => setIsProfileEditing(false)} className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-slate-300">{language === 'sv' ? 'Avbryt' : 'Cancel'}</button>
+                    </div>
+                  </div>
+                )}
+
+                {!isProfileEditing && (currentUser.bio || currentUser.location || currentUser.website || currentUser.github || currentUser.linkedin) && (
+                  <div className="space-y-2 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-xs text-slate-300">
+                    {currentUser.bio && <p className="leading-relaxed text-slate-400">{currentUser.bio}</p>}
+                    <div className="flex flex-wrap gap-x-4 gap-y-2 text-slate-400">
+                      {currentUser.location && <span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5 text-sky-300" />{currentUser.location}</span>}
+                      {currentUser.website && <a href={currentUser.website} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-white"><LinkIcon className="h-3.5 w-3.5" />Website</a>}
+                      {currentUser.github && <a href={currentUser.github} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-white"><Github className="h-3.5 w-3.5" />GitHub</a>}
+                      {currentUser.linkedin && <a href={currentUser.linkedin} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-white"><Linkedin className="h-3.5 w-3.5" />LinkedIn</a>}
+                    </div>
+                  </div>
+                )}
+
+                <button onClick={() => { setIsProfileEditing(true); setAuthError(''); }} className="w-full rounded-xl border border-sky-500/30 bg-sky-500/10 px-3 py-2.5 text-xs font-bold text-sky-200 hover:bg-sky-500/20">
+                  {language === 'sv' ? 'Redigera min profil' : 'Edit my profile'}
+                </button>
 
                 <button
                   onClick={handleLogout}
