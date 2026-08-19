@@ -292,6 +292,8 @@ const STARTER_TEMPLATES = [
   }
 ];
 
+const PLAYGROUND_DRAFT_KEY = 'nexus_web_playground_draft_v1';
+
 export const PlaygroundView: React.FC<PlaygroundViewProps> = ({ language = 'sv' }) => {
   const t = TRANSLATIONS[language];
   
@@ -301,7 +303,13 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({ language = 'sv' 
   const [playgroundMobileView, setPlaygroundMobileView] = useState<'editor' | 'preview' | 'split'>('editor');
 
   // 3-files storage
-  const [files, setFiles] = useState<ThreeFilesBundle>(() => splitHtmlInto3Files(STARTER_TEMPLATES[0].code));
+  const [files, setFiles] = useState<ThreeFilesBundle>(() => {
+    try {
+      const saved = localStorage.getItem(PLAYGROUND_DRAFT_KEY);
+      if (saved) return JSON.parse(saved) as ThreeFilesBundle;
+    } catch {}
+    return splitHtmlInto3Files(STARTER_TEMPLATES[0].code);
+  });
   
   // Single-file fallback storage
   const [singleCode, setSingleCode] = useState<string>(STARTER_TEMPLATES[0].code);
@@ -309,6 +317,12 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({ language = 'sv' 
   const [activeTemplate, setActiveTemplate] = useState<string>(STARTER_TEMPLATES[0].id);
   const [currentTitle, setCurrentTitle] = useState('Mitt Projekt');
   const [downloadSuccess, setDownloadSuccess] = useState(false);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(PLAYGROUND_DRAFT_KEY, JSON.stringify(files));
+    } catch {}
+  }, [files]);
 
   // Combined code for live preview
   const effectiveHtml = editorMode === 'three-files' 
@@ -400,16 +414,16 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({ language = 'sv' 
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-sm font-bold text-slate-100">
-                {language === 'sv' ? '3-Filers Kodarena Sandbox' : '3-File Code Arena Sandbox'}
+                {language === 'sv' ? 'Koderarena Arbetsstudio' : 'Koderarena Work Studio'}
               </h3>
               <span className="text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30">
                 HTML + CSS + JS
               </span>
             </div>
             <p className="text-xs text-slate-400">
-              {language === 'sv' 
-                ? 'Arbeta i rena separata filer eller exportera direkt som index.html, style.css och script.js' 
-                : 'Work across clean separate files or export directly as index.html, style.css, and script.js'}
+                {language === 'sv' 
+                ? 'Koda fritt i HTML, CSS och JavaScript med live-preview och autosparat utkast.' 
+                : 'Code freely in HTML, CSS, and JavaScript with live preview and autosaved drafts.'}
             </p>
           </div>
         </div>
@@ -551,8 +565,8 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({ language = 'sv' 
         </div>
       )}
 
-      {/* Mobile/Tablet View Selector for Playground */}
-      <div className="flex lg:hidden items-center bg-[#070b16] p-1.5 rounded-2xl border border-white/10 shadow-lg">
+      {/* Phone-only selector. iPad keeps editor and preview visible together. */}
+      <div className="flex md:hidden items-center bg-[#070b16] p-1.5 rounded-2xl border border-white/10 shadow-lg">
         <button
           onClick={() => setPlaygroundMobileView('editor')}
           className={`flex-1 py-2.5 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 min-h-[44px] ${
@@ -589,9 +603,9 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({ language = 'sv' 
       </div>
 
       {/* Editor & Preview Split Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-        <div className={`lg:col-span-6 space-y-3 ${
-          playgroundMobileView === 'editor' || playgroundMobileView === 'split' ? 'block' : 'hidden lg:block'
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 lg:gap-5 items-stretch">
+        <div className={`md:col-span-1 lg:col-span-6 min-w-0 md:min-h-[620px] space-y-3 ${
+          playgroundMobileView === 'editor' || playgroundMobileView === 'split' ? 'block' : 'hidden md:block'
         }`}>
           <HtmlCodeEditor
             code={currentEditorCode}
@@ -616,13 +630,13 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({ language = 'sv' 
             isRunning={false}
             showSubmit={false}
             exerciseTitle={currentEditorTitle}
-            initialHeight={540}
+            initialHeight={560}
             language={language}
           />
         </div>
 
-        <div className={`lg:col-span-6 space-y-3 ${
-          playgroundMobileView === 'preview' || playgroundMobileView === 'split' ? 'block' : 'hidden lg:block'
+        <div className={`md:col-span-1 lg:col-span-6 min-w-0 md:min-h-[620px] space-y-3 ${
+          playgroundMobileView === 'preview' || playgroundMobileView === 'split' ? 'block' : 'hidden md:block'
         }`}>
           <HtmlPreviewOutput
             result={result}
