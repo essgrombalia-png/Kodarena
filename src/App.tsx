@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import { HtmlAcademy } from './components/HtmlAcademy/HtmlAcademy';
+import { AppErrorBoundary } from './components/AppErrorBoundary';
 import { Language } from './i18n/translations';
 
 const LANG_STORAGE_KEY = 'nexus_web_academy_lang_v1';
@@ -62,14 +63,16 @@ export default function App() {
   };
 
   return (
-    <div className="app-shell w-full min-h-screen bg-transparent text-slate-100">
-      <HtmlAcademy
-        language={language}
-        onToggleLanguage={handleToggleLanguage}
-        currentUser={currentUser}
-        onAuthChange={handleAuthChange}
-      />
-    </div>
+    <AppErrorBoundary>
+      <div className="app-shell w-full min-h-screen bg-transparent text-slate-100">
+        <HtmlAcademy
+          language={language}
+          onToggleLanguage={handleToggleLanguage}
+          currentUser={currentUser}
+          onAuthChange={handleAuthChange}
+        />
+      </div>
+    </AppErrorBoundary>
   );
 }
 
