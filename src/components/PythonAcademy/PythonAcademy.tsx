@@ -135,9 +135,9 @@ export const PythonAcademy: React.FC<PythonAcademyProps> = ({ onBackToGame }) =>
   };
 
   return (
-    <div className="min-h-screen bg-[#050810] text-slate-100 flex flex-col selection:bg-cyan-500/30 selection:text-white font-sans">
+    <div className="app-shell min-h-screen bg-transparent text-slate-100 flex flex-col selection:bg-cyan-500/30 selection:text-white font-sans">
       {/* Top Navbar */}
-      <header className="sticky top-0 z-40 bg-[#050810]/90 backdrop-blur-xl border-b border-white/10 px-4 lg:px-8 py-3 flex items-center justify-between">
+      <header className="academy-topbar sticky top-0 z-40 backdrop-blur-xl border-b border-white/10 px-4 lg:px-8 py-3 flex items-center justify-between">
         <div className="flex items-center gap-4">
           {onBackToGame && (
             <button

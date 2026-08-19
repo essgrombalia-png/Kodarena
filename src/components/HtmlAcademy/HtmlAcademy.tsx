@@ -416,9 +416,9 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#050810] text-slate-100 font-sans flex flex-col">
+    <div className="app-shell w-full min-h-screen bg-transparent text-slate-100 flex flex-col">
       {/* Top Main Navigation Bar */}
-      <header className="sticky top-0 z-40 bg-[#050810]/95 backdrop-blur-md border-b border-white/10 px-4 sm:px-6 py-3">
+      <header className="academy-topbar sticky top-0 z-40 backdrop-blur-xl border-b border-white/10 px-4 sm:px-6 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
           {/* Logo & Brand */}
           <div className="flex items-center gap-3">
@@ -459,7 +459,7 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
           </div>
 
           {/* Navigation Links */}
-          <div className="flex items-center gap-1 bg-white/5 p-1 rounded-2xl border border-white/5 overflow-x-auto scrollbar-none">
+          <div className="academy-tab-rail flex items-center gap-1 p-1 rounded-2xl border overflow-x-auto scrollbar-none">
             <button
               onClick={() => setActiveTab('curriculum')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition ${

@@ -62,7 +62,7 @@ export default function App() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#050810] text-slate-100 font-sans">
+    <div className="app-shell w-full min-h-screen bg-transparent text-slate-100">
       <HtmlAcademy
         language={language}
         onToggleLanguage={handleToggleLanguage}
