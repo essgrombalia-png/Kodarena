@@ -973,7 +973,37 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
         )}
 
         {activeTab === 'profile' && currentUser && (
-          <PortfolioView account={currentUser} progress={userProgress} language={language} onEditProfile={() => setIsAuthOpen(true)} />
+          <PortfolioView
+            account={currentUser}
+            progress={userProgress}
+            language={language}
+            onEditProfile={() => setIsAuthOpen(true)}
+            onShareProfile={() => {
+              const snapshot = {
+                account: {
+                  id: currentUser.id,
+                  name: currentUser.name,
+                  email: currentUser.email,
+                  role: currentUser.role,
+                  bio: currentUser.bio,
+                  location: currentUser.location,
+                  website: currentUser.website,
+                  github: currentUser.github,
+                  linkedin: currentUser.linkedin,
+                  avatarUrl: currentUser.avatarUrl
+                },
+                progress: {
+                  totalXp: userProgress.totalXp,
+                  streakDays: userProgress.streakDays,
+                  completedExerciseIds: userProgress.completedExerciseIds,
+                  completedProjectIds: userProgress.completedProjectIds || []
+                }
+              };
+              const encoded = btoa(encodeURIComponent(JSON.stringify(snapshot)));
+              const url = `${window.location.origin}${window.location.pathname}?profile=${encoded}`;
+              navigator.clipboard?.writeText(url);
+            }}
+          />
         )}
 
         {activeTab === 'admin' && currentUser?.role === 'admin' && (

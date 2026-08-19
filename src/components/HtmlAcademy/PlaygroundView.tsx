@@ -20,7 +20,9 @@ import {
   Copy,
   FolderArchive,
   Split,
-  Eye
+  Eye,
+  Undo2,
+  Redo2
 } from 'lucide-react';
 import { HtmlCodeEditor } from './HtmlCodeEditor';
 import { HtmlPreviewOutput } from './HtmlPreviewOutput';
@@ -295,6 +297,11 @@ const STARTER_TEMPLATES = [
 
 const PLAYGROUND_DRAFT_KEY = 'nexus_web_playground_draft_v1';
 
+type DraftSnapshot = {
+  files: ThreeFilesBundle;
+  singleCode: string;
+};
+
 export const PlaygroundView: React.FC<PlaygroundViewProps> = ({ language = 'sv', initialProject }) => {
   const t = TRANSLATIONS[language];
   
@@ -306,7 +313,7 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({ language = 'sv',
   // 3-files storage
   const [files, setFiles] = useState<ThreeFilesBundle>(() => {
     try {
-      const saved = localStorage.getItem(PLAYGROUND_DRAFT_KEY);
+      const saved = localStorage.getItem(`${PLAYGROUND_DRAFT_KEY}:${initialProject?.id || 'free'}`);
       if (saved) return JSON.parse(saved) as ThreeFilesBundle;
     } catch {}
     return splitHtmlInto3Files(STARTER_TEMPLATES[0].code);
@@ -314,6 +321,8 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({ language = 'sv',
   
   // Single-file fallback storage
   const [singleCode, setSingleCode] = useState<string>(STARTER_TEMPLATES[0].code);
+  const [history, setHistory] = useState<DraftSnapshot[]>([]);
+  const [redoHistory, setRedoHistory] = useState<DraftSnapshot[]>([]);
 
   const [activeTemplate, setActiveTemplate] = useState<string>(STARTER_TEMPLATES[0].id);
   const [currentTitle, setCurrentTitle] = useState('Mitt Projekt');
@@ -321,9 +330,14 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({ language = 'sv',
 
   useEffect(() => {
     try {
-      localStorage.setItem(PLAYGROUND_DRAFT_KEY, JSON.stringify(files));
+      localStorage.setItem(`${PLAYGROUND_DRAFT_KEY}:${initialProject?.id || 'free'}`, JSON.stringify(files));
     } catch {}
   }, [files]);
+  
+  const saveHistoryPoint = () => {
+    setHistory(previous => [...previous.slice(-39), { files, singleCode }]);
+    setRedoHistory([]);
+  };
 
   useEffect(() => {
     if (!initialProject) return;
@@ -357,6 +371,7 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({ language = 'sv',
   };
 
   const handleSelectTemplate = (template: typeof STARTER_TEMPLATES[0]) => {
+      saveHistoryPoint();
     setActiveTemplate(template.id);
     setCurrentTitle(template.title);
     setSingleCode(template.code);
@@ -366,6 +381,8 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({ language = 'sv',
 
   // Switch between 3-files mode and single-file mode
   const handleToggleMode = (newMode: EditorMode) => {
+      if (newMode === editorMode) return;
+      saveHistoryPoint();
     if (newMode === 'three-files' && editorMode === 'single-file') {
       setFiles(splitHtmlInto3Files(singleCode));
     } else if (newMode === 'single-file' && editorMode === 'three-files') {
@@ -376,6 +393,7 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({ language = 'sv',
 
   // Handle updates to individual files in 3-file mode
   const handleUpdateActiveFile = (newContent: string) => {
+    saveHistoryPoint();
     if (activeFile === 'html') {
       setFiles(prev => ({ ...prev, html: newContent }));
     } else if (activeFile === 'css') {
@@ -383,6 +401,24 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({ language = 'sv',
     } else if (activeFile === 'js') {
       setFiles(prev => ({ ...prev, js: newContent }));
     }
+  };
+
+  const handleUndo = () => {
+    const previous = history[history.length - 1];
+    if (!previous) return;
+    setRedoHistory(next => [...next, { files, singleCode }]);
+    setHistory(next => next.slice(0, -1));
+    setFiles(previous.files);
+    setSingleCode(previous.singleCode);
+  };
+
+  const handleRedo = () => {
+    const next = redoHistory[redoHistory.length - 1];
+    if (!next) return;
+    setHistory(previous => [...previous, { files, singleCode }]);
+    setRedoHistory(previous => previous.slice(0, -1));
+    setFiles(next.files);
+    setSingleCode(next.singleCode);
   };
 
   // Download all 3 files (index.html, style.css, script.js)
@@ -475,6 +511,10 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({ language = 'sv',
             <FileDown className="w-4 h-4" />
             <span>{downloadSuccess ? (language === 'sv' ? 'Filer Nedladdade! ✓' : 'Files Downloaded! ✓') : (language === 'sv' ? 'Ladda ner 3 Filer' : 'Download 3 Files')}</span>
           </button>
+          <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-white/5 p-1">
+            <button onClick={handleUndo} disabled={!history.length} className="rounded-lg p-2 text-slate-300 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30" title={language === 'sv' ? 'Ångra' : 'Undo'}><Undo2 className="h-4 w-4" /></button>
+            <button onClick={handleRedo} disabled={!redoHistory.length} className="rounded-lg p-2 text-slate-300 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30" title={language === 'sv' ? 'Gör om' : 'Redo'}><Redo2 className="h-4 w-4" /></button>
+          </div>
         </div>
       </div>
 
@@ -628,6 +668,7 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({ language = 'sv',
             }}
             onRun={handleRun}
             onReset={() => {
+              saveHistoryPoint();
               const tmpl = STARTER_TEMPLATES.find(t => t.id === activeTemplate);
               if (tmpl) {
                 if (editorMode === 'three-files') {

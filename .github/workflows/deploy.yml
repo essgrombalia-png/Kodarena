@@ -31,10 +31,7 @@ jobs:
         run: npm ci
 
       - name: Typecheck
-        run: npm run lint
-
-      - name: Production build
-        run: npm run build
+        run: npm run check
 
   build:
     runs-on: ubuntu-latest

@@ -6,6 +6,8 @@
 import React, { useState } from 'react';
 import { HtmlAcademy } from './components/HtmlAcademy/HtmlAcademy';
 import { AppErrorBoundary } from './components/AppErrorBoundary';
+import { PortfolioView } from './components/HtmlAcademy/PortfolioView';
+import { UserHtmlProgress } from './types/html';
 import { Language } from './i18n/translations';
 
 const LANG_STORAGE_KEY = 'nexus_web_academy_lang_v1';
@@ -17,6 +19,23 @@ export interface AcademyAccount {
   email: string;
   password: string;
   createdAt: string;
+}
+
+interface SharedPortfolio {
+  account: Omit<AcademyAccount, 'password' | 'createdAt'>;
+  progress: Pick<UserHtmlProgress, 'totalXp' | 'streakDays' | 'completedExerciseIds' | 'completedProjectIds'>;
+}
+
+function getSharedPortfolio(): SharedPortfolio | null {
+  try {
+    const encoded = new URLSearchParams(window.location.search).get('profile');
+    if (!encoded) return null;
+    const decoded = JSON.parse(decodeURIComponent(atob(encoded))) as SharedPortfolio;
+    if (!decoded.account?.name || !decoded.progress) return null;
+    return decoded;
+  } catch {
+    return null;
+  }
 }
 
 function getStoredActiveAccount(): AcademyAccount | null {
@@ -39,6 +58,7 @@ function saveStoredActiveAccount(account: AcademyAccount | null) {
 }
 
 export default function App() {
+  const [sharedPortfolio] = useState<SharedPortfolio | null>(() => getSharedPortfolio());
   const [language, setLanguage] = useState<Language>(() => {
     try {
       const saved = localStorage.getItem(LANG_STORAGE_KEY);
@@ -61,6 +81,31 @@ export default function App() {
     setCurrentUser(account);
     saveStoredActiveAccount(account);
   };
+
+  if (sharedPortfolio) {
+    return (
+      <AppErrorBoundary>
+        <div className="app-shell min-h-screen bg-transparent text-slate-100">
+          <PortfolioView
+            account={sharedPortfolio.account}
+            progress={{
+              ...sharedPortfolio.progress,
+              level: 1,
+              lastActiveDate: new Date().toISOString(),
+              activeTrack: 'html',
+              solvedQuizIds: [],
+              unlockedBadgeIds: [],
+              savedPlaygroundCodes: [],
+              activeExerciseId: 'html-1-1'
+            }}
+            language={language}
+            onEditProfile={() => window.history.back()}
+            onShareProfile={() => navigator.clipboard?.writeText(window.location.href)}
+          />
+        </div>
+      </AppErrorBoundary>
+    );
+  }
 
   return (
     <AppErrorBoundary>

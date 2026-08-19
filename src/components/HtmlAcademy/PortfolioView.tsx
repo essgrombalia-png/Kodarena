@@ -19,9 +19,10 @@ interface PortfolioViewProps {
   progress: UserHtmlProgress;
   language: Language;
   onEditProfile: () => void;
+  onShareProfile: () => void;
 }
 
-export const PortfolioView: React.FC<PortfolioViewProps> = ({ account, progress, language, onEditProfile }) => {
+export const PortfolioView: React.FC<PortfolioViewProps> = ({ account, progress, language, onEditProfile, onShareProfile }) => {
   const completedProjects = progress.completedProjectIds?.length || 0;
   const completedLessons = progress.completedExerciseIds.length;
 
@@ -44,7 +45,10 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ account, progress,
               {account.linkedin && <a href={account.linkedin} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-white"><Linkedin className="h-3.5 w-3.5" />LinkedIn</a>}
             </div>
           </div>
-          <button onClick={onEditProfile} className="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs font-bold text-slate-200 hover:bg-white/10">{language === 'sv' ? 'Redigera profil' : 'Edit profile'}</button>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={onShareProfile} className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-xs font-bold text-emerald-200 hover:bg-emerald-500/20">{language === 'sv' ? 'Dela portfolio' : 'Share portfolio'}</button>
+            <button onClick={onEditProfile} className="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs font-bold text-slate-200 hover:bg-white/10">{language === 'sv' ? 'Redigera profil' : 'Edit profile'}</button>
+          </div>
         </div>
       </section>
 
