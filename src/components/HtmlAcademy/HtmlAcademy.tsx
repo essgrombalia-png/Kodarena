@@ -31,7 +31,13 @@ import {
   Rocket,
   User,
   Mail,
-  ShieldCheck
+  ShieldCheck,
+  Github,
+  Heart,
+  LifeBuoy,
+  FileText,
+  Info,
+  ExternalLink
 } from 'lucide-react';
 import { UserHtmlProgress, HtmlLessonLevel, HtmlExercise, WebTrack } from '../../types/html';
 import { getLocalizedCurriculum } from '../../utils/localizedCurriculum';
@@ -141,6 +147,7 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
   const [authMode, setAuthMode] = useState<'signup' | 'login'>('signup');
   const [authForm, setAuthForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const [authError, setAuthError] = useState('');
+  const [footerPanel, setFooterPanel] = useState<'privacy' | 'terms' | 'about' | null>(null);
   const [localCurrentUser, setLocalCurrentUser] = useState<AcademyAccount | null>(() => getStoredActiveAccount());
 
   const currentUser = propCurrentUser ?? localCurrentUser;
@@ -933,6 +940,87 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
         )}
       </main>
 
+      <footer className="mt-auto border-t border-white/10 bg-[#080d18]/90 px-4 pb-28 pt-10 backdrop-blur-xl md:px-6 md:pb-10">
+        <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
+          <div className="max-w-sm space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 via-sky-400 to-emerald-400 text-xs font-black text-slate-950 shadow-lg shadow-orange-500/20">
+                &lt;/&gt;
+              </div>
+              <div>
+                <div className="font-black tracking-[0.14em] text-white">KODARENA</div>
+                <div className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Web Academy</div>
+              </div>
+            </div>
+            <p className="text-sm leading-relaxed text-slate-400">
+              {language === 'sv'
+                ? 'En fokuserad lärmiljö för modern frontend, byggd för att hjälpa dig från första taggen till professionella projekt.'
+                : 'A focused learning environment for modern frontend, built to take you from your first tag to professional projects.'}
+            </p>
+            <div className="flex items-center gap-2 text-xs text-slate-500">
+              <Heart className="h-3.5 w-3.5 text-rose-400" />
+              <span>{language === 'sv' ? 'Byggd för människor som vill kunna mer.' : 'Built for people who want to know more.'}</span>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="mb-4 text-[11px] font-black uppercase tracking-[0.2em] text-slate-300">
+              {language === 'sv' ? 'Lär dig' : 'Learn'}
+            </h3>
+            <div className="space-y-2.5 text-sm text-slate-400">
+              <button onClick={() => setActiveTab('curriculum')} className="block text-left hover:text-orange-300">{language === 'sv' ? 'Kursöversikt' : 'Course overview'}</button>
+              <button onClick={() => setActiveTab('playground')} className="block text-left hover:text-sky-300">Sandbox</button>
+              <button onClick={() => setActiveTab('quiz')} className="block text-left hover:text-amber-300">Quiz</button>
+              <button onClick={() => setActiveTab('cheatsheet')} className="block text-left hover:text-emerald-300">{language === 'sv' ? 'Fusklapp' : 'Cheatsheet'}</button>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="mb-4 text-[11px] font-black uppercase tracking-[0.2em] text-slate-300">
+              {language === 'sv' ? 'Ditt konto' : 'Your account'}
+            </h3>
+            <div className="space-y-2.5 text-sm text-slate-400">
+              <button onClick={() => setActiveTab('progress')} className="block text-left hover:text-orange-300">{language === 'sv' ? 'Framsteg & XP' : 'Progress & XP'}</button>
+              <button onClick={() => setActiveTab('certificate')} className="block text-left hover:text-amber-300">{language === 'sv' ? 'Certifikat' : 'Certificate'}</button>
+              <button onClick={() => setIsAuthOpen(true)} className="block text-left hover:text-emerald-300">{currentUser ? (language === 'sv' ? 'Kontoinställningar' : 'Account settings') : (language === 'sv' ? 'Logga in' : 'Log in')}</button>
+              <button onClick={handleToggleLanguage} className="block text-left hover:text-sky-300">{language === 'sv' ? 'Byt till English' : 'Byt till Svenska'}</button>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-300">{language === 'sv' ? 'Hjälp & kontakt' : 'Help & contact'}</h3>
+            <p className="text-sm leading-relaxed text-slate-400">
+              {language === 'sv' ? 'Fastnat i en övning? Kontakta oss eller öppna AI Coach direkt.' : 'Stuck on an exercise? Contact us or open AI Coach directly.'}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <a href="mailto:support@kodarena.dev" className="inline-flex items-center gap-2 rounded-xl border border-orange-500/30 bg-orange-500/10 px-3 py-2 text-xs font-bold text-orange-200 transition hover:bg-orange-500/20">
+                <Mail className="h-3.5 w-3.5" />
+                {language === 'sv' ? 'Kontakta support' : 'Contact support'}
+              </a>
+              <button onClick={() => { setAICoachContext(''); setIsAICoachOpen(true); }} className="inline-flex items-center gap-2 rounded-xl border border-indigo-500/30 bg-indigo-500/10 px-3 py-2 text-xs font-bold text-indigo-200 transition hover:bg-indigo-500/20">
+                <LifeBuoy className="h-3.5 w-3.5" />
+                AI Coach
+              </button>
+            </div>
+            <a href="https://github.com/essgrombalia-png/Kodarena" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 transition hover:text-white">
+              <Github className="h-4 w-4" />
+              Open source on GitHub
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          </div>
+        </div>
+
+        <div className="mx-auto mt-9 flex max-w-7xl flex-col gap-3 border-t border-white/10 pt-5 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+          <span>© {new Date().getFullYear()} Kodarena Web Academy</span>
+          <div className="flex flex-wrap items-center gap-4">
+            <button onClick={() => setFooterPanel('about')} className="hover:text-white">{language === 'sv' ? 'Om plattformen' : 'About the platform'}</button>
+            <button onClick={() => setFooterPanel('privacy')} className="hover:text-white">{language === 'sv' ? 'Integritet' : 'Privacy'}</button>
+            <button onClick={() => setFooterPanel('terms')} className="hover:text-white">{language === 'sv' ? 'Villkor' : 'Terms'}</button>
+            <span className="inline-flex items-center gap-1.5 text-emerald-400"><ShieldCheck className="h-3.5 w-3.5" /> {language === 'sv' ? 'Din data stannar i webbläsaren' : 'Your data stays in your browser'}</span>
+          </div>
+        </div>
+      </footer>
+
       {/* Mobile Bottom Navigation Bar (Smartphones & Small Screens) */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#050810]/95 backdrop-blur-xl border-t border-white/10 px-2 py-2 flex items-center justify-around shadow-2xl safe-area-bottom">
         <button
@@ -1122,6 +1210,28 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {footerPanel && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-3xl border border-white/10 bg-[#0d1422] p-6 shadow-2xl">
+            <div className="mb-4 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2 text-white">
+                {footerPanel === 'privacy' ? <ShieldCheck className="h-5 w-5 text-emerald-400" /> : footerPanel === 'terms' ? <FileText className="h-5 w-5 text-amber-400" /> : <Info className="h-5 w-5 text-sky-400" />}
+                <h3 className="text-lg font-black">{footerPanel === 'privacy' ? (language === 'sv' ? 'Integritet' : 'Privacy') : footerPanel === 'terms' ? (language === 'sv' ? 'Villkor' : 'Terms') : (language === 'sv' ? 'Om Kodarena' : 'About Kodarena')}</h3>
+              </div>
+              <button onClick={() => setFooterPanel(null)} className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-xs text-slate-300">✕</button>
+            </div>
+            <p className="text-sm leading-relaxed text-slate-300">
+              {footerPanel === 'privacy'
+                ? (language === 'sv' ? 'Kodarena sparar konto, framsteg, språk och mallar lokalt i din webbläsare. Ingen av denna information skickas till en extern databas i den nuvarande versionen. AI Coach skickar endast den fråga eller kod du aktivt väljer att skicka.' : 'Kodarena stores account, progress, language, and templates locally in your browser. This version does not send that information to an external database. AI Coach only receives the question or code you actively submit.')
+                : footerPanel === 'terms'
+                ? (language === 'sv' ? 'Kodarena är en utbildningsplattform för övning. Kursinnehåll, poäng och certifikat används för lärande och portfolio; certifikatet är inte en myndighets- eller universitetsackreditering.' : 'Kodarena is an educational practice platform. Course content, scores, and certificates are intended for learning and portfolios; the certificate is not government or university accreditation.')
+                : (language === 'sv' ? 'Kodarena kombinerar strukturerade lektioner, kodövningar, live-preview, quiz och personlig progression i en och samma lärmiljö.' : 'Kodarena combines structured lessons, coding exercises, live preview, quizzes, and personal progress in one focused learning environment.')}
+            </p>
+            <button onClick={() => setFooterPanel(null)} className="mt-6 w-full rounded-xl bg-white/10 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-white/15">{language === 'sv' ? 'Stäng' : 'Close'}</button>
           </div>
         </div>
       )}
