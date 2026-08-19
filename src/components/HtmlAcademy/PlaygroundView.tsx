@@ -45,6 +45,50 @@ interface PlaygroundViewProps {
 type ActiveFileType = 'html' | 'css' | 'js';
 type EditorMode = 'three-files' | 'single-file';
 
+interface CompactCodePaneProps {
+  kind: ActiveFileType;
+  code: string;
+  onChange: (code: string) => void;
+  title: string;
+}
+
+const CompactCodePane: React.FC<CompactCodePaneProps> = ({ kind, code, onChange, title }) => {
+  const config = {
+    html: { label: 'HTML', icon: '◈', accent: 'text-rose-300', border: 'border-rose-400/30', dot: 'bg-rose-400', placeholder: '<main>\n  <h1>...</h1>\n</main>' },
+    css: { label: 'CSS', icon: '✦', accent: 'text-sky-300', border: 'border-sky-400/30', dot: 'bg-sky-400', placeholder: '.card {\n  color: ...;\n}' },
+    js: { label: 'JS', icon: '◉', accent: 'text-amber-300', border: 'border-amber-400/30', dot: 'bg-amber-400', placeholder: "const app = () => {\n  ...\n};" }
+  }[kind];
+  const lines = Math.max(1, code.split('\n').length);
+
+  return (
+    <section className={`flex min-h-[330px] min-w-0 flex-col overflow-hidden rounded-xl border bg-[#1b1c22] shadow-xl ${config.border}`}>
+      <header className="flex h-9 shrink-0 items-center justify-between border-b border-white/10 bg-[#25262d] px-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className={`h-2.5 w-2.5 rounded-full ${config.dot}`} />
+          <span className={`text-xs font-black ${config.accent}`}>{config.label}</span>
+          <span className="truncate text-[10px] text-slate-500">{title}</span>
+        </div>
+        <span className="text-xs text-slate-500">⌄</span>
+      </header>
+      <div className="flex min-h-0 flex-1 overflow-hidden bg-[#1b1c22]">
+        <div className="select-none border-r border-white/5 px-2 py-3 text-right font-mono text-[10px] leading-[1.55] text-slate-600">
+          {Array.from({ length: lines }, (_, index) => <div key={index}>{index + 1}</div>)}
+        </div>
+        <textarea
+          value={code}
+          onChange={(event) => onChange(event.target.value)}
+          spellCheck={false}
+          autoCapitalize="off"
+          autoCorrect="off"
+          className="min-h-[300px] w-full resize-none overflow-auto bg-transparent px-3 py-3 font-mono text-[11px] leading-[1.55] text-slate-200 outline-none placeholder:text-slate-600"
+          placeholder={config.placeholder}
+          aria-label={`${config.label} editor`}
+        />
+      </div>
+    </section>
+  );
+};
+
 const STARTER_TEMPLATES = [
   {
     id: 'portfolio',
@@ -551,15 +595,14 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({ language = 'sv',
         </button>
       </div>
 
-      {/* File Tabs for 3-File Mode */}
+      {/* File status for 3-file mode */}
       {editorMode === 'three-files' && (
-        <div className="flex items-center justify-between bg-[#070b16] px-4 py-2.5 rounded-2xl border border-white/10">
+        <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-[#070b16] px-4 py-2.5">
           <div className="flex items-center gap-2">
             <span className="text-xs font-mono text-slate-500 font-bold uppercase mr-1">
-              {language === 'sv' ? 'Aktiv Fil:' : 'Active File:'}
+              {language === 'sv' ? 'Tre editorer öppna:' : 'Three editors open:'}
             </span>
 
-            {/* HTML Tab */}
             <button
               onClick={() => setActiveFile('html')}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold font-mono transition border ${
@@ -575,7 +618,6 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({ language = 'sv',
               </span>
             </button>
 
-            {/* CSS Tab */}
             <button
               onClick={() => setActiveFile('css')}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold font-mono transition border ${
@@ -591,7 +633,6 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({ language = 'sv',
               </span>
             </button>
 
-            {/* JS Tab */}
             <button
               onClick={() => setActiveFile('js')}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold font-mono transition border ${
@@ -652,9 +693,18 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({ language = 'sv',
         </button>
       </div>
 
-      {/* Editor & Preview Split Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 lg:gap-5 items-stretch">
-        <div className={`md:col-span-1 lg:col-span-6 min-w-0 md:min-h-[620px] space-y-3 ${
+      {/* Three simultaneous code editors, matching the iPad workbench layout */}
+      {editorMode === 'three-files' && (
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-2 lg:gap-4">
+          <CompactCodePane kind="html" code={files.html} title="index.html" onChange={(code) => { saveHistoryPoint(); setFiles(previous => ({ ...previous, html: code })); }} />
+          <CompactCodePane kind="css" code={files.css} title="style.css" onChange={(code) => { saveHistoryPoint(); setFiles(previous => ({ ...previous, css: code })); }} />
+          <CompactCodePane kind="js" code={files.js} title="script.js" onChange={(code) => { saveHistoryPoint(); setFiles(previous => ({ ...previous, js: code })); }} />
+        </div>
+      )}
+
+      {/* Full editor remains available for single-file mode */}
+      <div className={`grid grid-cols-1 gap-4 lg:gap-5 items-stretch ${editorMode === 'three-files' ? 'hidden' : ''}`}>
+        <div className={`min-w-0 md:min-h-[620px] space-y-3 ${
           playgroundMobileView === 'editor' || playgroundMobileView === 'split' ? 'block' : 'hidden md:block'
         }`}>
           <HtmlCodeEditor
@@ -686,7 +736,7 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({ language = 'sv',
           />
         </div>
 
-        <div className={`md:col-span-1 lg:col-span-6 min-w-0 md:min-h-[620px] space-y-3 ${
+        <div className={`min-w-0 md:min-h-[620px] space-y-3 ${
           playgroundMobileView === 'preview' || playgroundMobileView === 'split' ? 'block' : 'hidden md:block'
         }`}>
           <HtmlPreviewOutput
@@ -698,6 +748,19 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({ language = 'sv',
           />
         </div>
       </div>
+
+      {/* Shared realtime preview below the three editors */}
+      {editorMode === 'three-files' && (
+        <div className="min-w-0">
+          <HtmlPreviewOutput
+            result={result}
+            rawHtml={effectiveHtml}
+            onRefresh={handleRun}
+            language={language}
+            isRealTime={true}
+          />
+        </div>
+      )}
     </div>
   );
 };
