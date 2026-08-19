@@ -8,7 +8,6 @@ import {
   ChevronRight, 
   ChevronLeft, 
   ArrowLeft,
-  Sparkles, 
   Volume2, 
   VolumeX, 
   Eye, 
@@ -33,7 +32,6 @@ interface LessonViewProps {
   onSelectExercise: (exerciseId: string) => void;
   onCompleteExercise: (exerciseId: string, earnedXp: number) => void;
   onBackToMap: () => void;
-  onOpenAICoach: (context: string) => void;
   language?: Language;
 }
 
@@ -44,7 +42,6 @@ export const LessonView: React.FC<LessonViewProps> = ({
   onSelectExercise,
   onCompleteExercise,
   onBackToMap,
-  onOpenAICoach,
   language = 'sv'
 }) => {
   const t = TRANSLATIONS[language];
@@ -492,16 +489,6 @@ export const LessonView: React.FC<LessonViewProps> = ({
             )}
           </div>
 
-          {/* AI Help Trigger */}
-          <div className="p-3 bg-[#050811] border-t border-white/10">
-            <button
-              onClick={() => onOpenAICoach(language === 'sv' ? `Jag arbetar på övningen "${exercise.title}". Min nuvarande kod är:\n\`\`\`html\n${code}\n\`\`\`\nUppgiften är: ${exercise.task}` : `I'm working on the exercise "${exercise.title}". My current code is:\n\`\`\`html\n${code}\n\`\`\`\nThe task is: ${exercise.task}`)}
-              className="w-full py-2.5 px-3 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 font-semibold text-xs flex items-center justify-center gap-1.5 transition active:scale-98"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-              <span>{t.askAI}</span>
-            </button>
-          </div>
         </div>
 
         {/* Middle Column: Code Editor */}
@@ -512,7 +499,6 @@ export const LessonView: React.FC<LessonViewProps> = ({
             onRun={handleRunCode}
             onSubmit={handleSubmitCode}
             onReset={handleResetCode}
-            onAskAI={() => onOpenAICoach(language === 'sv' ? `Jag behöver hjälp med min kod för "${exercise.title}":\n\`\`\`html\n${code}\n\`\`\`` : `I need help with my code for "${exercise.title}":\n\`\`\`html\n${code}\n\`\`\``)}
             isSubmitting={isSubmitting}
             showSubmit={true}
             exerciseTitle={exercise.title}

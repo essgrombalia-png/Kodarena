@@ -4,13 +4,11 @@ import {
   BookOpen, 
   Terminal, 
   Sparkles, 
-  HelpCircle, 
   Award, 
   Flame, 
   Zap, 
   ArrowLeft, 
   Play, 
-  Layers, 
   CheckCircle2, 
   Lock, 
   ChevronRight,
@@ -34,7 +32,6 @@ import {
   ShieldCheck,
   Github,
   Heart,
-  LifeBuoy,
   FileText,
   Info,
   ExternalLink,
@@ -47,11 +44,8 @@ import { UserHtmlProgress, HtmlLessonLevel, HtmlExercise, WebTrack } from '../..
 import { getLocalizedCurriculum } from '../../utils/localizedCurriculum';
 import { LessonView } from './LessonView';
 import { PlaygroundView } from './PlaygroundView';
-import { QuizView } from './QuizView';
-import { CheatsheetView } from './CheatsheetView';
 import { ProgressDashboard } from './ProgressDashboard';
 import { CertificateView } from './CertificateView';
-import { AICoachModal } from './AICoachModal';
 import { ProjectHub } from './ProjectHub';
 import { Language, TRANSLATIONS } from '../../i18n/translations';
 
@@ -149,13 +143,11 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
   const language = propLanguage || internalLanguage;
   const t = TRANSLATIONS[language];
 
-  const [activeTab, setActiveTab] = useState<'curriculum' | 'lesson' | 'playground' | 'quiz' | 'cheatsheet' | 'progress' | 'projects' | 'certificate'>('curriculum');
+  const [activeTab, setActiveTab] = useState<'curriculum' | 'lesson' | 'playground' | 'progress' | 'projects' | 'certificate'>('curriculum');
   const [activeTrack, setActiveTrack] = useState<'all' | 'html' | 'css' | 'js'>('all');
   const [selectedLevelId, setSelectedLevelId] = useState<number>(1);
   const [selectedExerciseId, setSelectedExerciseId] = useState<string>('html-1-1');
   const [selectedTrack, setSelectedTrack] = useState<WebTrack>('html');
-  const [isAICoachOpen, setIsAICoachOpen] = useState(false);
-  const [aiCoachContext, setAICoachContext] = useState('');
   const [isAuthOpen, setIsAuthOpen] = useState(true);
   const [authMode, setAuthMode] = useState<'signup' | 'login'>('signup');
   const [authForm, setAuthForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
@@ -582,30 +574,6 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
             </button>
 
             <button
-              onClick={() => setActiveTab('quiz')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
-                activeTab === 'quiz'
-                  ? 'bg-orange-500 text-slate-950 shadow-md shadow-orange-500/20 font-bold'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <HelpCircle className="w-3.5 h-3.5" />
-              <span>{t.quizTab}</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('cheatsheet')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
-                activeTab === 'cheatsheet'
-                  ? 'bg-orange-500 text-slate-950 shadow-md shadow-orange-500/20 font-bold'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <Layers className="w-3.5 h-3.5" />
-              <span>{t.cheatsheetTab}</span>
-            </button>
-
-            <button
               onClick={() => setActiveTab('progress')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
                 activeTab === 'progress'
@@ -642,7 +610,7 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
             </button>
           </div>
 
-          {/* User Stats, Language Switcher & AI Coach */}
+          {/* User Stats & Language Switcher */}
           <div className="flex items-center gap-2">
             {/* Language Switcher */}
             <button
@@ -671,17 +639,6 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
                   <span className="hidden md:inline">{language === 'sv' ? 'Logga in' : 'Log in'}</span>
                 </>
               )}
-            </button>
-
-            <button
-              onClick={() => {
-                setAICoachContext('');
-                setIsAICoachOpen(true);
-              }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 text-xs font-semibold transition shadow-sm"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-              <span className="hidden md:inline">{t.aiCoach}</span>
             </button>
 
             <div className="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 px-3 py-1.5 rounded-xl text-amber-300 text-xs font-mono font-bold">
@@ -815,16 +772,6 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
                     >
                       <Play className="w-3.5 h-3.5 fill-current" />
                       {language === 'sv' ? 'Fortsätt här' : 'Continue here'}
-                    </button>
-                    <button
-                      onClick={() => {
-                        setAICoachContext(nextRecommendedExercise?.title || '');
-                        setIsAICoachOpen(true);
-                      }}
-                      className="inline-flex items-center gap-2 rounded-xl border border-indigo-500/30 bg-indigo-500/10 px-3.5 py-2 text-xs font-bold text-indigo-200 hover:bg-indigo-500/20 transition"
-                    >
-                      <Sparkles className="w-3.5 h-3.5" />
-                      {language === 'sv' ? 'AI Coach' : 'AI Coach'}
                     </button>
                   </div>
                 </div>
@@ -995,10 +942,6 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
             }}
             onCompleteExercise={handleCompleteExercise}
             onBackToMap={() => setActiveTab('curriculum')}
-            onOpenAICoach={(ctx) => {
-              setAICoachContext(ctx);
-              setIsAICoachOpen(true);
-            }}
             language={language}
           />
         )}
@@ -1006,19 +949,7 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
         {/* Tab 3: Sandbox Playground */}
         {activeTab === 'playground' && <PlaygroundView language={language} />}
 
-        {/* Tab 4: Quiz Mode */}
-        {activeTab === 'quiz' && (
-          <QuizView
-            userProgress={userProgress}
-            onSolveQuiz={handleSolveQuiz}
-            language={language}
-          />
-        )}
-
-        {/* Tab 5: HTML, CSS & JS Cheatsheet */}
-        {activeTab === 'cheatsheet' && <CheatsheetView language={language} />}
-
-        {/* Tab 6: Progress Dashboard (Recharts Visual Analytics) */}
+        {/* Progress Dashboard */}
         {activeTab === 'progress' && (
           <ProgressDashboard
             userProgress={userProgress}
@@ -1039,7 +970,7 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
           />
         )}
 
-        {/* Tab 7: Certificate & Diploma Generator */}
+        {/* Certificate & Diploma Generator */}
         {activeTab === 'certificate' && (
           <CertificateView
             userProgress={userProgress}
@@ -1081,8 +1012,7 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
             <div className="space-y-2.5 text-sm text-slate-400">
               <button onClick={() => setActiveTab('curriculum')} className="block text-left hover:text-orange-300">{language === 'sv' ? 'Kursöversikt' : 'Course overview'}</button>
               <button onClick={() => setActiveTab('playground')} className="block text-left hover:text-sky-300">Sandbox</button>
-              <button onClick={() => setActiveTab('quiz')} className="block text-left hover:text-amber-300">Quiz</button>
-              <button onClick={() => setActiveTab('cheatsheet')} className="block text-left hover:text-emerald-300">{language === 'sv' ? 'Fusklapp' : 'Cheatsheet'}</button>
+              <button onClick={() => setActiveTab('projects')} className="block text-left hover:text-emerald-300">{language === 'sv' ? 'Färdiga projekt' : 'Finished projects'}</button>
             </div>
           </div>
 
@@ -1101,17 +1031,13 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
           <div className="space-y-4">
             <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-300">{language === 'sv' ? 'Hjälp & kontakt' : 'Help & contact'}</h3>
             <p className="text-sm leading-relaxed text-slate-400">
-              {language === 'sv' ? 'Fastnat i en övning? Kontakta oss eller öppna AI Coach direkt.' : 'Stuck on an exercise? Contact us or open AI Coach directly.'}
+              {language === 'sv' ? 'Fastnat i en övning? Använd uppdragets ledtrådar och testa koden direkt i arbetsstudion.' : 'Stuck on an exercise? Use the task hints and test your code directly in the work studio.'}
             </p>
             <div className="flex flex-wrap gap-2">
               <a href="mailto:support@kodarena.dev" className="inline-flex items-center gap-2 rounded-xl border border-orange-500/30 bg-orange-500/10 px-3 py-2 text-xs font-bold text-orange-200 transition hover:bg-orange-500/20">
                 <Mail className="h-3.5 w-3.5" />
                 {language === 'sv' ? 'Kontakta support' : 'Contact support'}
               </a>
-              <button onClick={() => { setAICoachContext(''); setIsAICoachOpen(true); }} className="inline-flex items-center gap-2 rounded-xl border border-indigo-500/30 bg-indigo-500/10 px-3 py-2 text-xs font-bold text-indigo-200 transition hover:bg-indigo-500/20">
-                <LifeBuoy className="h-3.5 w-3.5" />
-                AI Coach
-              </button>
             </div>
             <a href="https://github.com/essgrombalia-png/Kodarena" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 transition hover:text-white">
               <Github className="h-4 w-4" />
@@ -1156,18 +1082,6 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
         >
           <Code2 className="w-5 h-5" />
           <span className="text-[10px] tracking-tight">{language === 'sv' ? 'Sandbox' : 'Sandbox'}</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('quiz')}
-          className={`flex flex-col items-center justify-center gap-1 py-1 px-2.5 rounded-xl transition min-w-[56px] min-h-[44px] ${
-            activeTab === 'quiz'
-              ? 'text-orange-400 font-bold'
-              : 'text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <HelpCircle className="w-5 h-5" />
-          <span className="text-[10px] tracking-tight">Quiz</span>
         </button>
 
         <button
@@ -1403,22 +1317,16 @@ export const HtmlAcademy: React.FC<HtmlAcademyProps> = ({
             </div>
             <p className="text-sm leading-relaxed text-slate-300">
               {footerPanel === 'privacy'
-                ? (language === 'sv' ? 'Kodarena sparar konto, framsteg, språk och mallar lokalt i din webbläsare. Ingen av denna information skickas till en extern databas i den nuvarande versionen. AI Coach skickar endast den fråga eller kod du aktivt väljer att skicka.' : 'Kodarena stores account, progress, language, and templates locally in your browser. This version does not send that information to an external database. AI Coach only receives the question or code you actively submit.')
+                ? (language === 'sv' ? 'Kodarena sparar konto, framsteg, språk och mallar lokalt i din webbläsare. Ingen av denna information skickas till en extern databas i den nuvarande versionen.' : 'Kodarena stores account, progress, language, and templates locally in your browser. This version does not send that information to an external database.')
                 : footerPanel === 'terms'
                 ? (language === 'sv' ? 'Kodarena är en utbildningsplattform för övning. Kursinnehåll, poäng och certifikat används för lärande och portfolio; certifikatet är inte en myndighets- eller universitetsackreditering.' : 'Kodarena is an educational practice platform. Course content, scores, and certificates are intended for learning and portfolios; the certificate is not government or university accreditation.')
-                : (language === 'sv' ? 'Kodarena kombinerar strukturerade lektioner, kodövningar, live-preview, quiz och personlig progression i en och samma lärmiljö.' : 'Kodarena combines structured lessons, coding exercises, live preview, quizzes, and personal progress in one focused learning environment.')}
+                : (language === 'sv' ? 'Kodarena kombinerar strukturerade lektioner, kodövningar, live-preview, färdiga projekt och personlig progression i en och samma lärmiljö.' : 'Kodarena combines structured lessons, coding exercises, live preview, finished projects, and personal progress in one focused learning environment.')}
             </p>
             <button onClick={() => setFooterPanel(null)} className="mt-6 w-full rounded-xl bg-white/10 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-white/15">{language === 'sv' ? 'Stäng' : 'Close'}</button>
           </div>
         </div>
       )}
 
-      {/* AI Coach Dialog Modal */}
-      <AICoachModal
-        isOpen={isAICoachOpen}
-        onClose={() => setIsAICoachOpen(false)}
-        initialContext={aiCoachContext}
-      />
     </div>
   );
 };

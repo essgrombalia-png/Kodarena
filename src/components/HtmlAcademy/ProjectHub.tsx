@@ -53,6 +53,17 @@ const PROJECTS = [
     skills: ['Forms', 'Validation', 'ES6+'],
     color: 'amber',
     level: 'Capstone'
+  },
+  {
+    id: 'academy-home',
+    track: 'HTML5 + CSS3 + JS ES6+',
+    titleSv: 'Academy Home',
+    titleEn: 'Academy Home',
+    descSv: 'Återskapa en premium startsida för en utbildningsplattform med navigation, kurskort och tydliga CTA-flöden.',
+    descEn: 'Recreate a premium education platform home with navigation, course cards, and clear CTA flows.',
+    skills: ['Component UI', 'Responsive Layout', 'UI States'],
+    color: 'emerald',
+    level: 'Portfolio'
   }
 ];
 
@@ -74,7 +85,7 @@ export const ProjectHub: React.FC<ProjectHubProps> = ({
           <div className="max-w-2xl space-y-3">
             <div className="inline-flex items-center gap-2 rounded-full border border-orange-400/30 bg-orange-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-orange-200">
               <Rocket className="h-3.5 w-3.5" />
-              {language === 'sv' ? 'Projektstudio' : 'Project studio'}
+              {language === 'sv' ? 'Färdiga projekt' : 'Finished projects'}
             </div>
             <h2 className="text-2xl font-black text-white sm:text-3xl">
               {language === 'sv' ? 'Gör något som kan visas upp.' : 'Build something worth showing.'}
@@ -132,12 +143,14 @@ export const ProjectHub: React.FC<ProjectHubProps> = ({
             <Code2 className="h-5 w-5 text-sky-300" />
           </div>
           <div className="space-y-3 text-sm text-slate-300">
-            <p>{language === 'sv' ? 'Leveranschecklista' : 'Delivery checklist'}</p>
+            <p className="font-bold text-slate-200">{language === 'sv' ? 'Lär dig genom projektet' : 'Learn through the project'}</p>
+            <p className="text-xs leading-relaxed text-slate-400">{language === 'sv' ? 'Följ stegen från struktur till publicering och bygg varje del i arbetsstudion.' : 'Follow the steps from structure to publishing and build each part in the work studio.'}</p>
             <div className="space-y-2">
               {[
                 language === 'sv' ? 'Strukturera en tydlig användarresa' : 'Define a clear user journey',
                 language === 'sv' ? 'Bygg responsivt från mobil och uppåt' : 'Build responsively from mobile up',
-                language === 'sv' ? 'Testa states och interaktioner' : 'Test states and interactions'
+                language === 'sv' ? 'Testa states och interaktioner' : 'Test states and interactions',
+                language === 'sv' ? 'Publicera och dokumentera projektet' : 'Publish and document the project'
               ].map(item => <div key={item} className="flex items-center gap-2 text-xs text-slate-400"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />{item}</div>)}
             </div>
             <div className="flex flex-wrap gap-2 pt-2">

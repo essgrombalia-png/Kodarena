@@ -320,7 +320,7 @@ export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
           </div>
           <div>
             <p className="text-xs text-slate-400 font-medium">{language === 'sv' ? 'Portfolio-projekt' : 'Portfolio projects'}</p>
-            <h3 className="text-2xl font-bold text-slate-100 font-mono tracking-tight">{userProgress.completedProjectIds?.length || 0} / 3</h3>
+            <h3 className="text-2xl font-bold text-slate-100 font-mono tracking-tight">{userProgress.completedProjectIds?.length || 0} / 4</h3>
             <span className="text-[10px] text-emerald-300 font-semibold font-mono">{language === 'sv' ? 'projekt klara' : 'projects complete'}</span>
           </div>
         </div>
